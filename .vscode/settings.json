@@ -1,0 +1,41 @@
+{
+    "latex-workshop.view.pdf.viewer": "tab",
+    "latex-workshop.latex.outDir": "%DIR%/build",
+    "latex-workshop.latex.recipes": [
+        {
+            "name": "latexmk ➞ copiarPDF",
+            "tools": [
+                "latexmk",
+                "copiarPDF"
+            ]
+        }
+    ],
+    "latex-workshop.latex.tools": [
+        {
+            "name": "latexmk",
+            "command": "latexmk",
+            "args": [
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "-pdf",
+                "-outdir=%DIR%/build",
+                "%DOC%"
+            ],
+            "env": {}
+        },
+        {
+            "name": "copiarPDF",
+            "command": "powershell",
+            "args": [
+                "-Command",
+                "Copy-Item",
+                "-Path",
+                "'%DIR%/build/%DOCFILE%.pdf'",
+                "-Destination",
+                "'%DIR%/%DOCFILE%.pdf'"
+            ],
+            "env": {}
+        }
+    ]
+}

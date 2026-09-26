@@ -1,0 +1,24 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{graphicx}
+\usepackage{geometry}
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+\graphicspath{{images/}{../images/}}
+
+% Importar metadatos
+\input{sections/00_metadatos.tex}
+
+\begin{document}
+
+% Carátula
+\input{sections/00_caratula}
+
+% Índice general
+\tableofcontents
+\newpage
+
+% Secciones principales
+\input{sections/01_introduccion}
+
+\end{document}
