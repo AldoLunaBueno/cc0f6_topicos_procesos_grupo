@@ -1,4 +1,6 @@
+
 {
+    "editor.wordWrap": "on",
     "latex-workshop.view.pdf.viewer": "tab",
     "latex-workshop.latex.outDir": "%DIR%/build",
     "latex-workshop.latex.recipes": [

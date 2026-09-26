@@ -1,6 +1,6 @@
 \subsection{Situación Problemática}
 
-\subsubsection{Contexto del Proceso Macro: Matrícula Regular de Estudiantes de la UNI}
+\subsubsection{Contexto del Proceso: Matrícula Regular de Estudiantes de la UNI}
 La Matrícula Regular en la UNI es el trámite obligatorio mediante el cual los estudiantes de pregrado registran sus asignaturas cada semestre. Este procedimiento es de aprobación automática a través de la Intranet DIRCE y se rige por la Ley Universitaria 30220, el Estatuto de la UNI, el Reglamento de Matrícula (RR-0570-2022) y el TUPA de la universidad.
 
 Para que la matrícula se complete de manera ordenada, el proceso se divide en cuatro subprocesos secuenciales:
@@ -11,17 +11,26 @@ Para que la matrícula se complete de manera ordenada, el proceso se divide en c
 \item \textbf{Confirmación y Registro Transaccional Oficial:} Guarda la matrícula definitiva en la base de datos (SIGA-ORCE), emite la Boleta de Matrícula y reporta la información oficial a la SUNEDU y al MINEDU.
 \end{enumerate}
 
+\vspace{1cm}
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{% Ajusta el tamaño de la imagen al ancho del texto
+    \input{diagramas/ishikawa_problema.tex} 
+}
+\caption{Diagrama de Ishikawa - Inconsistencias y Demoras en la Matrícula Regular de la UNI.}
+\label{fig:ishikawa}
+\end{figure}
+
 \subsubsection{Problemática en el Subproceso 1: Acreditación y Pre-requisitos}
-El Subproceso 1 busca verificar el pago de autoseguro, la ausencia de deudas y la asignación del turno de matrícula. Sin embargo, presenta dos fallos principales en el sistema de información:
+El Subproceso 1 busca verificar el pago de autoseguro, la ausencia de deudas y la asignación del turno de matrícula. Identificamos dos fallos principales en la plataforma:
 \begin{itemize}
-\item \textbf{Falta de integración en el control de deudas:} Aunque el TUPA exige no tener deudas de libros o materiales con la Facultad, la Intranet DIRCE no consulta las bases de datos de biblioteca en tiempo real. Esto permite que alumnos con adeudos se matriculen solo pagando el autoseguro, vulnerando la regla de negocio del proceso.
-\item \textbf{Rigidez en la actualización de la ficha de matrícula:} Los estudiantes con convalidaciones, exoneraciones o reincorporaciones aprobadas no figuran en la base de datos inicial de la DIRCE [13]. Al depender de un trámite manual para actualizar su estado, el sistema no les libera la ficha a tiempo y pierden su turno de inscripción.
+\item \textbf{Falta de integración en el control de deudas:} Aunque el TUPA exige no tener deudas de libros o materiales con la Facultad, la Intranet DIRCE no consulta las bases de datos de biblioteca en tiempo real. Esto permite que alumnos con adeudos se matriculen solo pagando el autoseguro, saltándose la regla de negocio del proceso.
+\item \textbf{Rigidez en la actualización de la ficha de matrícula:} Los estudiantes con convalidaciones, exoneraciones o reincorporaciones aprobadas no figuran en la base de datos inicial de la DIRCE. Al depender de un trámite manual para actualizar su estado, el sistema no les libera la ficha a tiempo y pierden su turno de inscripción.
 \end{itemize}
 
 \subsubsection{Problemática en el Subproceso 2: Selección y Registro de Cursos}
-El procedimiento administrativo de matrícula regular en la Universidad Nacional de Ingeniería (UNI) constituye uno de los procesos organizacionales más críticos del ciclo académico, pues determina directamente la carga lectiva de cada estudiante y, en consecuencia, su trayectoria de formación profesional. Dentro de la cadena de valor que compone este procedimiento, el Subproceso 2: Selección y Registro de Cursos representa el núcleo operativo del sistema: es la etapa en la que el estudiante habilitado interactúa de manera directa con la oferta académica disponible a través de la Intranet DIRCE para seleccionar asignaturas, secciones y horarios dentro de los límites de creditaje autorizados por su promedio ponderado.
-
-Sin embargo, este subproceso concentra la mayor densidad de incidencias reportadas durante cada periodo de matrícula. El agotamiento acelerado de vacantes en secciones de alta demanda, la saturación del portal DIRCE por alta concurrencia simultánea, los cruces horarios estructurales entre asignaturas de ciclos contiguos y la omisión de cursos en la interfaz del sistema son problemas recurrentes que afectan a un porcentaje significativo de la comunidad estudiantil. Estas fallas no son meramente técnicas: responden a debilidades en la articulación entre la lógica del proceso de negocio y la capacidad del sistema de información que lo soporta, tal como establece la distinción conceptual entre proceso y sistema desarrollada por la teoría del modelamiento: el proceso define qué se hace y quién lo hace, mientras que el sistema provee las herramientas tecnológicas para ejecutarlo, controlarlo y mejorarlo.
+El Subproceso 2 es la etapa central de la matrícula, donde el estudiante ingresa al portal DIRCE en su turno asignado para armar su horario, elegir secciones y reservar vacantes según el límite de créditos autorizado por su promedio. Sin embargo, este subproceso concentra la mayor densidad de incidencias reportadas durante cada periodo de matrícula. El agotamiento acelerado de vacantes en secciones de alta demanda, la saturación del portal DIRCE por alta concurrencia simultánea, los cruces horarios estructurales entre asignaturas de ciclos contiguos y la omisión de cursos en la interfaz del sistema son problemas recurrentes que afectan a un porcentaje significativo de la comunidad estudiantil. Estas fallas no son solo técnicas, sino que responden a debilidades en la articulación entre la lógica del proceso de negocio y la capacidad del sistema de información que lo soporta, tal como establece la distinción conceptual entre proceso y sistema.
 
 \subsubsection{Problemática en el Subproceso 3.A: Verificación y Control de Reglas Académicas}
 El Subproceso 3: Verificación y Control de Reglas Académicas es la etapa posterior inmediata a la generación de la pre-ficha de matrícula y reserva temporal de cupos del Subproceso 2. Consiste en la fiscalización, validación y control riguroso de la selección preliminar de asignaturas efectuada por el estudiante en la plataforma Intranet DIRCE/SIGA-ORCE. Su propósito central es verificar que la carga lectiva solicitada cumpla estrictamente con la normativa universitaria y las directivas internas (límites de créditos por promedio ponderado, prelaciones, cursos de arrastre/repitencia, planes curriculares vigentes y condiciones académicas especiales) antes del asiento transaccional definitivo del sub proceso 3.b.
