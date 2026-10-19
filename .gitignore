@@ -32,3 +32,6 @@
 
 ## No versionar PDFs
 *.pdf
+
+
+/temp
