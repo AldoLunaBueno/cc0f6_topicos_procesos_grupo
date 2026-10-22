@@ -1,5 +1,28 @@
 \subsubsection{Subproceso 2: Selección y Registro de Cursos}
 
-% TODO: Definir dónde empieza, qué incluye, dónde termina y qué queda fuera de este subproceso.
-\textit{[Pendiente: Indicar dónde empieza, qué incluye, dónde termina y qué queda fuera del Subproceso 2.]}
+
+
+\textbf{Inicio:} El subproceso se activa cuando el estudiante accede a la Intranet DIRCE dentro de su franja horaria habilitada y el sistema confirma su estado de ``Habilitado'' (salida del Subproceso 1). En ese momento la plataforma despliega la oferta académica personalizada según su Plan de Estudios y su historial de prerrequisitos aprobados.
+
+\textbf{Incluye:}
+\begin{itemize}
+    \item Visualización de la oferta de asignaturas, secciones, horarios y vacantes disponibles para el ciclo en curso.
+    \item Selección interactiva de asignaturas y secciones por parte del estudiante.
+    \item Validación automática en tiempo real del límite de créditos según promedio ponderado y de la inexistencia de cruces de horario prohibidos.
+    \item Registro y envío de la propuesta de matrícula mediante confirmación final en el portal.
+    \item Generación de la reserva temporal de cupos en el SIGA-ORCE.
+\end{itemize}
+
+\textbf{Fin:} El subproceso concluye cuando el sistema registra la Pre-Ficha de Matrícula con las asignaturas y secciones seleccionadas y emite el comprobante provisional al estudiante, transfiriendo la propuesta al Subproceso 3.A para su auditoría.
+
+\textbf{Fuera del alcance:}
+\begin{itemize}
+    \item La verificación de compromisos financieros (autoseguro, deudas) y la asignación del turno, que corresponden al Subproceso 1.
+    \item La auditoría de prerrequisitos y reglas académicas de fondo, que se realiza en el Subproceso 3.A.
+    \item La confirmación transaccional definitiva y emisión de la Boleta Oficial, propias del Subproceso 3.B.
+    \item La resolución de solicitudes de rectificación por causales de vacantes agotadas o cruces, gestionadas en el Subproceso 3.A.
+\end{itemize}
+
+
+
 
