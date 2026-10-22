@@ -1,0 +1,410 @@
+name: Compilar LaTeX
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened, closed]
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      project:
+        description: 'Carpeta a compilar manualmente'
+        required: true
+        default: 'trabajo_grupal'
+
+permissions:
+  contents: write
+  actions: write
+  pull-requests: write
+
+jobs:
+  # =========================================================================
+  # 1. Detectar qué proyectos fueron modificados
+  # =========================================================================
+  detect-changes:
+    name: Detectar proyectos modificados
+    if: github.event_name != 'pull_request' || github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    outputs:
+      projects: ${{ steps.filter.outputs.projects }}
+      has_changes: ${{ steps.filter.outputs.has_changes }}
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Identificar carpetas con cambios
+        id: filter
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            if [ "${{ inputs.project }}" = "all" ]; then
+              DIRS=$(find . -maxdepth 2 -mindepth 2 -name "main.tex" -not -path "*/temp/*" -not -path "*/.*/*" | cut -d'/' -f2 | sort -u)
+            else
+              DIRS="${{ inputs.project }}"
+            fi
+          elif [ "${{ github.event_name }}" = "pull_request" ]; then
+            CHANGED_FILES=$(git diff --name-only "origin/${{ github.base_ref }}...HEAD")
+            echo "Archivos modificados en la PR:"
+            echo "$CHANGED_FILES"
+            DIRS=$(echo "$CHANGED_FILES" | grep '/' | cut -d'/' -f1 | sort -u || true)
+          else
+            # Push (merge) en la rama main
+            BEFORE_SHA="${{ github.event.before }}"
+            if [ -z "$BEFORE_SHA" ] || [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
+              BEFORE_SHA="HEAD~1"
+            fi
+            CHANGED_FILES=$(git diff --name-only "$BEFORE_SHA..${{ github.sha }}" 2>/dev/null || git diff --name-only HEAD~1..HEAD || true)
+            echo "Archivos modificados en el merge a main:"
+            echo "$CHANGED_FILES"
+            DIRS=$(echo "$CHANGED_FILES" | grep '/' | cut -d'/' -f1 | sort -u || true)
+          fi
+
+          VALID_DIRS=()
+          for dir in $DIRS; do
+            if [ -d "$dir" ] && [ -f "$dir/main.tex" ] && [ "$dir" != "temp" ]; then
+              VALID_DIRS+=("$dir")
+            fi
+          done
+
+          if [ ${#VALID_DIRS[@]} -eq 0 ]; then
+            echo "No se detectaron cambios en carpetas con main.tex."
+            echo "projects=[]" >> "$GITHUB_OUTPUT"
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          else
+            JSON_ARRAY=$(printf '%s\n' "${VALID_DIRS[@]}" | jq -R . | jq -sc .)
+            echo "Proyectos a compilar: $JSON_ARRAY"
+            echo "projects=$JSON_ARRAY" >> "$GITHUB_OUTPUT"
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  # =========================================================================
+  # 2. Compilar cada proyecto modificado de forma independiente
+  # =========================================================================
+  compile-latex:
+    name: Compilar ${{ matrix.project }}
+    needs: detect-changes
+    if: needs.detect-changes.outputs.has_changes == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project: ${{ fromJson(needs.detect-changes.outputs.projects) }}
+
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar dependencias de LaTeX (pdflatex + paquetes)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            latexmk \
+            texlive-latex-base \
+            texlive-latex-recommended \
+            texlive-latex-extra \
+            texlive-pictures \
+            texlive-science \
+            texlive-lang-spanish \
+            texlive-fonts-recommended
+
+      - name: Compilar ${{ matrix.project }}/main.tex -> ${{ matrix.project }}.pdf
+        id: build
+        working-directory: ${{ matrix.project }}
+        run: |
+          mkdir -p build
+
+          latexmk \
+            -synctex=1 \
+            -interaction=nonstopmode \
+            -file-line-error \
+            -pdf \
+            -outdir=build \
+            main.tex
+
+          OUTPUT_PDF="${{ matrix.project }}.pdf"
+          cp "build/main.pdf" "build/$OUTPUT_PDF"
+
+          # Definir nombre del artefacto según si es PR abierta o rama main fusionada
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            ARTIFACT_NAME="${{ matrix.project }}-pr-${{ github.event.pull_request.number }}"
+          else
+            ARTIFACT_NAME="${{ matrix.project }}"
+          fi
+
+          echo "pdf_path=${{ matrix.project }}/build/$OUTPUT_PDF" >> "$GITHUB_OUTPUT"
+          echo "output_pdf=$OUTPUT_PDF" >> "$GITHUB_OUTPUT"
+          echo "artifact_name=$ARTIFACT_NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Subir artefacto (${{ steps.build.outputs.artifact_name }})
+        id: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.build.outputs.artifact_name }}
+          path: ${{ steps.build.outputs.pdf_path }}
+          overwrite: true
+
+      - name: Publicar resumen en la ejecución
+        if: success()
+        run: |
+          echo "### ✅ Compilación exitosa: \`${{ matrix.project }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Archivo fuente:** \`${{ matrix.project }}/main.tex\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **PDF generado:** \`${{ steps.build.outputs.output_pdf }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Artefacto:** [\`${{ steps.build.outputs.artifact_name }}\`](${{ steps.upload.outputs.artifact-url }})" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Comentar enlace de descarga del PDF en la PR
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.pull_request.number;
+            const project = '${{ matrix.project }}';
+            const outputPdf = '${{ steps.build.outputs.output_pdf || format('{0}.pdf', matrix.project) }}';
+            const artifactName = '${{ steps.build.outputs.artifact_name }}';
+            const artifactUrl = '${{ steps.upload.outputs.artifact-url }}';
+            const uploadOutcome = '${{ steps.upload.outcome }}';
+            const commitSha = context.payload.pull_request.head.sha.slice(0, 7);
+            const runUrl = `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`;
+
+            const marker = `<!-- latex-pr-preview-${project} -->`;
+            let body = `${marker}\n`;
+
+            if (uploadOutcome === 'success' && artifactUrl) {
+              body += `### 📄 Compilación LaTeX exitosa: \`${project}\`\n\n`;
+              body += `| Proyecto | Archivo PDF | Commit | Descarga Directa |\n`;
+              body += `| :--- | :--- | :--- | :--- |\n`;
+              body += `| \`${project}/main.tex\` | \`${outputPdf}\` | \`${commitSha}\` | [📥 **Descargar ${artifactName}**](${artifactUrl}) |\n\n`;
+              body += `_Nota: El enlace descarga un archivo \`.zip\` que contiene \`${outputPdf}\` listo para revisar._`;
+            } else {
+              body += `### ❌ Error al compilar LaTeX: \`${project}\`\n\n`;
+              body += `No se pudo generar \`${outputPdf}\` en el commit \`${commitSha}\`.\n`;
+              body += `🔍 [Revisar los registros de error en GitHub Actions](${runUrl})`;
+            }
+
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number,
+              per_page: 100
+            });
+
+            const existingComment = comments.find(c => c.body && c.body.includes(marker));
+
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existingComment.id,
+                body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body
+              });
+            }
+
+  # =========================================================================
+  # 3. Publicar PDFs en Release "latest" y actualizar README.md (Solo en main)
+  # =========================================================================
+  publish-release-and-readme:
+    name: Publicar en Release y actualizar README
+    needs: [detect-changes, compile-latex]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.detect-changes.outputs.has_changes == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout de main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.ADMIN_TOKEN }}
+
+      - name: Descargar artefactos compilados
+        uses: actions/download-artifact@v4
+        with:
+          path: downloaded-artifacts
+
+      - name: Publicar PDFs en GitHub Release 'latest'
+        id: release
+        env:
+          GH_TOKEN: ${{ secrets.ADMIN_TOKEN || secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.ADMIN_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          PDF_FILES=$(find downloaded-artifacts -name "*.pdf")
+          echo "PDFs encontrados para publicar:"
+          echo "$PDF_FILES"
+
+          if [ -z "$PDF_FILES" ]; then
+            echo "No se encontraron PDFs en los artefactos descargados."
+            exit 0
+          fi
+
+          # Crear el tag/release 'latest' si no existe
+          gh release view latest || gh release create latest --title "Últimos Documentos Compilados (main)" --notes "PDFs oficiales actualizados automáticamente tras cada merge en main."
+
+          # Subir cada PDF reemplazando si ya existía (--clobber)
+          for pdf in $PDF_FILES; do
+            echo "Subiendo $pdf al release latest..."
+            gh release upload latest "$pdf" --clobber
+          done
+
+      - name: Actualizar tabla de documentos en README.md
+        env:
+          UPDATED_PROJECTS: ${{ needs.detect-changes.outputs.projects }}
+        run: |
+          node -e '
+          const fs = require("fs");
+
+          const repo = process.env.GITHUB_REPOSITORY;
+          const commitSha = process.env.GITHUB_SHA.slice(0, 7);
+          const dateStr = new Date().toISOString().split("T")[0];
+          const updatedDirs = JSON.parse(process.env.UPDATED_PROJECTS || "[]");
+
+          let readme = fs.readFileSync("README.md", "utf8");
+
+          const existingMap = new Map();
+          const match = readme.match(/<!-- LATEST_PDFS_START -->([\s\S]*?)<!-- LATEST_PDFS_END -->/);
+          if (match) {
+            const lines = match[1].split("\n");
+            for (const line of lines) {
+              const rowMatch = line.match(/^\|\s*\*\*([^*]+)\*\*\s*\|\s*`([^`]+)`\s*\|\s*([^|]+)\|\s*([^|]+)\|\s*(.+)\|$/);
+              if (rowMatch) {
+                const label = rowMatch[1].trim();
+                const pdfName = rowMatch[2].trim();
+                const key = pdfName.replace(/\.pdf$/i, "").toLowerCase();
+                existingMap.set(key, {
+                  label,
+                  pdfName,
+                  date: rowMatch[3].trim(),
+                  commit: rowMatch[4].trim(),
+                  link: rowMatch[5].trim()
+                });
+              }
+            }
+          }
+
+          const allDirs = fs.readdirSync(".").filter(d => {
+            return d !== "temp" && !d.startsWith(".") && fs.existsSync(`${d}/main.tex`) && fs.statSync(d).isDirectory();
+          }).sort();
+
+          let tableRows = [];
+          for (const dir of allDirs) {
+            const key = dir.toLowerCase();
+            const pdfName = `${dir}.pdf`;
+            const label = dir.split(/[_-]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+            const downloadUrl = `https://github.com/${repo}/releases/download/latest/${pdfName}`;
+
+            if (updatedDirs.includes(dir) || !existingMap.has(key)) {
+              tableRows.push(`| **${label}** | \`${pdfName}\` | ${dateStr} | \`${commitSha}\` | [📄 **Ver / Descargar PDF**](${downloadUrl}) |`);
+            } else {
+              const prev = existingMap.get(key);
+              tableRows.push(`| **${prev.label}** | \`${prev.pdfName}\` | ${prev.date} | ${prev.commit} | ${prev.link} |`);
+            }
+          }
+
+          const tableMarkdown = [
+            "<!-- LATEST_PDFS_START -->",
+            "### 📚 Documentos Compilados (Última versión en `main`)",
+            "",
+            "| Documento | Archivo PDF | Última actualización | Commit | Descarga Directa |",
+            "| :--- | :--- | :--- | :--- | :--- |",
+            ...tableRows,
+            "<!-- LATEST_PDFS_END -->"
+          ].join("\n");
+
+          const regex = /<!-- LATEST_PDFS_START -->[\s\S]*?<!-- LATEST_PDFS_END -->/;
+          if (regex.test(readme)) {
+            readme = readme.replace(regex, tableMarkdown);
+          } else {
+            readme += "\n\n" + tableMarkdown;
+          }
+          fs.writeFileSync("README.md", readme);
+          '
+
+      - name: Hacer commit y push del README.md actualizado
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          if git diff --staged --quiet; then
+            echo "No hay cambios pendientes en el README.md."
+          else
+            git commit -m "docs: actualizar enlaces a los últimos PDFs compilados [skip ci]"
+            git push origin main
+          fi
+
+  # =========================================================================
+  # 4. Sincronizar artefactos: conservar PRs abiertas + último fusionado
+  # =========================================================================
+  cleanup-artifacts:
+    name: Sincronizar artefactos
+    if: always() && (github.event.action == 'closed' || needs.detect-changes.outputs.has_changes == 'true')
+    needs: [detect-changes, compile-latex]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Conservar artefactos de PRs abiertas y solo el último fusionado de cada proyecto
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+
+            // 1. Obtener todas las PRs actualmente ABIERTAS
+            const openPRs = await github.paginate(github.rest.pulls.list, {
+              owner,
+              repo,
+              state: 'open',
+              per_page: 100
+            });
+            const openPRNumbers = new Set(openPRs.map(pr => String(pr.number)));
+            console.log(`PRs abiertas actualmente: [${[...openPRNumbers].join(', ')}]`);
+
+            // 2. Obtener todos los artefactos activos del repositorio (ordenados del más reciente al más antiguo)
+            const artifacts = await github.paginate(github.rest.actions.listArtifactsForRepo, {
+              owner,
+              repo,
+              per_page: 100
+            });
+            const activeArtifacts = artifacts
+              .filter(a => !a.expired)
+              .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+            const seenNames = new Set();
+            const toDelete = [];
+
+            for (const artifact of activeArtifacts) {
+              const prMatch = artifact.name.match(/^(.+)-pr-(\d+)$/);
+
+              if (prMatch) {
+                const prNumber = prMatch[2];
+                // Si la PR ya NO está abierta (fue fusionada o rechazada), o si es un duplicado viejo de la misma PR
+                if (!openPRNumbers.has(prNumber) || seenNames.has(artifact.name)) {
+                  toDelete.push(artifact);
+                } else {
+                  seenNames.add(artifact.name);
+                }
+              } else {
+                // Para artefactos fusionados/main, conservar únicamente el más reciente de cada proyecto
+                if (seenNames.has(artifact.name)) {
+                  toDelete.push(artifact);
+                } else {
+                  seenNames.add(artifact.name);
+                }
+              }
+            }
+
+            console.log(`Artefactos a eliminar: ${toDelete.length}`);
+            for (const artifact of toDelete) {
+              console.log(`Eliminando: ${artifact.name} (ID: ${artifact.id}, creado: ${artifact.created_at})`);
+              await github.rest.actions.deleteArtifact({
+                owner,
+                repo,
+                artifact_id: artifact.id
+              });
+            }
+

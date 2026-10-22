@@ -13,6 +13,16 @@ Repositorio del informe grupal de análisis y rediseño de procesos mediante BPM
 
 ---
 
+<!-- LATEST_PDFS_START -->
+### 📚 Documentos Compilados (Última versión en `main`)
+
+| Documento | Archivo PDF | Última actualización | Commit | Descarga Directa |
+| :--- | :--- | :--- | :--- | :--- |
+| **Trabajo Grupal** | `trabajo_grupal.pdf` | — | — | _Pendiente de compilación_ |
+<!-- LATEST_PDFS_END -->
+
+---
+
 ## 1. ¿Qué tenemos hasta ahora?
 
 1. **Base de referencia preliminar (`docs/`):**
