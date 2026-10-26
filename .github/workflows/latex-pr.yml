@@ -19,6 +19,7 @@ permissions:
   contents: write
   actions: write
   pull-requests: write
+  issues: write
 
 jobs:
   # =========================================================================
@@ -27,7 +28,7 @@ jobs:
   detect-changes:
     name: Detectar proyectos modificados
     if: github.event_name != 'pull_request' || github.event.action != 'closed'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       projects: ${{ steps.filter.outputs.projects }}
       has_changes: ${{ steps.filter.outputs.has_changes }}
@@ -88,7 +89,7 @@ jobs:
     name: Compilar ${{ matrix.project }}
     needs: detect-changes
     if: needs.detect-changes.outputs.has_changes == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -99,6 +100,8 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Instalar dependencias de LaTeX (pdflatex + paquetes)
+        env:
+          DEBIAN_FRONTEND: noninteractive
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
