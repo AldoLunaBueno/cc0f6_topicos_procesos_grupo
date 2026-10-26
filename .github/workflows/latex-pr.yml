@@ -1,7 +1,7 @@
 name: Compilar LaTeX
 
 on:
-  pull_request:
+  pull_request_target:
     branches:
       - main
     types: [opened, synchronize, reopened, closed]
@@ -27,7 +27,7 @@ jobs:
   # =========================================================================
   detect-changes:
     name: Detectar proyectos modificados
-    if: github.event_name != 'pull_request' || github.event.action != 'closed'
+    if: github.event.action != 'closed'
     runs-on: ubuntu-24.04
     outputs:
       projects: ${{ steps.filter.outputs.projects }}
@@ -36,6 +36,7 @@ jobs:
       - name: Checkout del repositorio
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
 
       - name: Identificar carpetas con cambios
@@ -47,8 +48,9 @@ jobs:
             else
               DIRS="${{ inputs.project }}"
             fi
-          elif [ "${{ github.event_name }}" = "pull_request" ]; then
-            CHANGED_FILES=$(git diff --name-only "origin/${{ github.base_ref }}...HEAD")
+          elif [ "${{ github.event_name }}" = "pull_request" ] || [ "${{ github.event_name }}" = "pull_request_target" ]; then
+            git fetch origin "${{ github.base_ref }}" --depth=50 || true
+            CHANGED_FILES=$(git diff --name-only "${{ github.event.pull_request.base.sha }}..HEAD" 2>/dev/null || git diff --name-only "origin/${{ github.base_ref }}...HEAD")
             echo "Archivos modificados en la PR:"
             echo "$CHANGED_FILES"
             DIRS=$(echo "$CHANGED_FILES" | grep '/' | cut -d'/' -f1 | sort -u || true)
@@ -94,10 +96,11 @@ jobs:
       fail-fast: false
       matrix:
         project: ${{ fromJson(needs.detect-changes.outputs.projects) }}
-
     steps:
       - name: Checkout del repositorio
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Instalar dependencias de LaTeX (pdflatex + paquetes)
         env:
@@ -119,7 +122,6 @@ jobs:
         working-directory: ${{ matrix.project }}
         run: |
           mkdir -p build
-
           latexmk \
             -synctex=1 \
             -interaction=nonstopmode \
@@ -132,7 +134,7 @@ jobs:
           cp "build/main.pdf" "build/$OUTPUT_PDF"
 
           # Definir nombre del artefacto según si es PR abierta o rama main fusionada
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
+          if [ "${{ github.event_name }}" = "pull_request" ] || [ "${{ github.event_name }}" = "pull_request_target" ]; then
             ARTIFACT_NAME="${{ matrix.project }}-pr-${{ github.event.pull_request.number }}"
           else
             ARTIFACT_NAME="${{ matrix.project }}"
@@ -151,7 +153,7 @@ jobs:
           overwrite: true
 
       - name: Publicar PDF de previsualización directo (sin comprimir)
-        if: success() && github.event_name == 'pull_request'
+        if: success() && (github.event_name == 'pull_request' || github.event_name == 'pull_request_target')
         id: pr_release
         env:
           GH_TOKEN: ${{ secrets.ADMIN_TOKEN || secrets.GITHUB_TOKEN }}
@@ -185,7 +187,7 @@ jobs:
           echo "- **Artefacto:** [\`${{ steps.build.outputs.artifact_name }}\`](${{ steps.upload.outputs.artifact-url }})" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Comentar enlace de descarga del PDF en la PR
-        if: always() && github.event_name == 'pull_request'
+        if: always() && (github.event_name == 'pull_request' || github.event_name == 'pull_request_target')
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.ADMIN_TOKEN || secrets.GITHUB_TOKEN }}
@@ -213,7 +215,6 @@ jobs:
               body += `| Proyecto | Archivo PDF | Commit | Descarga Directa |\n`;
               body += `| :--- | :--- | :--- | :--- |\n`;
               body += `| \`${project}/main.tex\` | \`${outputPdf}\` | \`${commitSha}\` | ${downloadLink} |\n\n`;
-
               if (directUrl) {
                 body += `_Nota: El enlace descarga el archivo \`.pdf\` directo sin comprimir listo para revisar._`;
               } else {
@@ -257,13 +258,13 @@ jobs:
     name: Publicar en Release y actualizar README
     needs: [detect-changes, compile-latex]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.detect-changes.outputs.has_changes == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout de main
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.ADMIN_TOKEN }}
+          token: ${{ secrets.ADMIN_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Descargar artefactos compilados
         uses: actions/download-artifact@v4
@@ -299,72 +300,72 @@ jobs:
           UPDATED_PROJECTS: ${{ needs.detect-changes.outputs.projects }}
         run: |
           node -e '
-          const fs = require("fs");
+            const fs = require("fs");
+            const repo = process.env.GITHUB_REPOSITORY;
+            const commitSha = process.env.GITHUB_SHA.slice(0, 7);
+            const dateStr = new Date().toISOString().split("T")[0];
+            const updatedDirs = JSON.parse(process.env.UPDATED_PROJECTS || "[]");
 
-          const repo = process.env.GITHUB_REPOSITORY;
-          const commitSha = process.env.GITHUB_SHA.slice(0, 7);
-          const dateStr = new Date().toISOString().split("T")[0];
-          const updatedDirs = JSON.parse(process.env.UPDATED_PROJECTS || "[]");
+            let readme = fs.readFileSync("README.md", "utf8");
 
-          let readme = fs.readFileSync("README.md", "utf8");
-
-          const existingMap = new Map();
-          const match = readme.match(/<!-- LATEST_PDFS_START -->([\s\S]*?)<!-- LATEST_PDFS_END -->/);
-          if (match) {
-            const lines = match[1].split("\n");
-            for (const line of lines) {
-              const rowMatch = line.match(/^\|\s*\*\*([^*]+)\*\*\s*\|\s*`([^`]+)`\s*\|\s*([^|]+)\|\s*([^|]+)\|\s*(.+)\|$/);
-              if (rowMatch) {
-                const label = rowMatch[1].trim();
-                const pdfName = rowMatch[2].trim();
-                const key = pdfName.replace(/\.pdf$/i, "").toLowerCase();
-                existingMap.set(key, {
-                  label,
-                  pdfName,
-                  date: rowMatch[3].trim(),
-                  commit: rowMatch[4].trim(),
-                  link: rowMatch[5].trim()
-                });
+            const existingMap = new Map();
+            const match = readme.match(/<!-- LATEST_PDFS_START -->([\s\S]*?)<!-- LATEST_PDFS_END -->/);
+            if (match) {
+              const lines = match[1].split("\n");
+              for (const line of lines) {
+                const rowMatch = line.match(/^\|\s*\*\*([^*]+)\*\*\s*\|\s*`([^`]+)`\s*\|\s*([^|]+)\|\s*([^|]+)\|\s*(.+)\|$/);
+                if (rowMatch) {
+                  const label = rowMatch[1].trim();
+                  const pdfName = rowMatch[2].trim();
+                  const key = pdfName.replace(/\.pdf$/i, "").toLowerCase();
+                  existingMap.set(key, {
+                    label,
+                    pdfName,
+                    date: rowMatch[3].trim(),
+                    commit: rowMatch[4].trim(),
+                    link: rowMatch[5].trim()
+                  });
+                }
               }
             }
-          }
 
-          const allDirs = fs.readdirSync(".").filter(d => {
-            return d !== "temp" && !d.startsWith(".") && fs.existsSync(`${d}/main.tex`) && fs.statSync(d).isDirectory();
-          }).sort();
+            const allDirs = fs.readdirSync(".").filter(d => {
+              return d !== "temp" && !d.startsWith(".") && fs.existsSync(`${d}/main.tex`) && fs.statSync(d).isDirectory();
+            }).sort();
 
-          let tableRows = [];
-          for (const dir of allDirs) {
-            const key = dir.toLowerCase();
-            const pdfName = `${dir}.pdf`;
-            const label = dir.split(/[_-]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
-            const downloadUrl = `https://github.com/${repo}/releases/download/latest/${pdfName}`;
+            let tableRows = [];
+            for (const dir of allDirs) {
+              const key = dir.toLowerCase();
+              const pdfName = `${dir}.pdf`;
+              const label = dir.split(/[_-]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+              const downloadUrl = `https://github.com/${repo}/releases/download/latest/${pdfName}`;
 
-            if (updatedDirs.includes(dir) || !existingMap.has(key)) {
-              tableRows.push(`| **${label}** | \`${pdfName}\` | ${dateStr} | \`${commitSha}\` | [📄 **Ver / Descargar PDF**](${downloadUrl}) |`);
-            } else {
-              const prev = existingMap.get(key);
-              tableRows.push(`| **${prev.label}** | \`${prev.pdfName}\` | ${prev.date} | ${prev.commit} | ${prev.link} |`);
+              if (updatedDirs.includes(dir) || !existingMap.has(key)) {
+                tableRows.push(`| **${label}** | \`${pdfName}\` | ${dateStr} | \`${commitSha}\` | [📄 **Ver / Descargar PDF**](${downloadUrl}) |`);
+              } else {
+                const prev = existingMap.get(key);
+                tableRows.push(`| **${prev.label}** | \`${prev.pdfName}\` | ${prev.date} | ${prev.commit} | ${prev.link} |`);
+              }
             }
-          }
 
-          const tableMarkdown = [
-            "<!-- LATEST_PDFS_START -->",
-            "### 📚 Documentos Compilados (Última versión en `main`)",
-            "",
-            "| Documento | Archivo PDF | Última actualización | Commit | Descarga Directa |",
-            "| :--- | :--- | :--- | :--- | :--- |",
-            ...tableRows,
-            "<!-- LATEST_PDFS_END -->"
-          ].join("\n");
+            const tableMarkdown = [
+              "<!-- LATEST_PDFS_START -->",
+              "### 📚 Documentos Compilados (Última versión en `main`)",
+              "",
+              "| Documento | Archivo PDF | Última actualización | Commit | Descarga Directa |",
+              "| :--- | :--- | :--- | :--- | :--- |",
+              ...tableRows,
+              "<!-- LATEST_PDFS_END -->"
+            ].join("\n");
 
-          const regex = /<!-- LATEST_PDFS_START -->[\s\S]*?<!-- LATEST_PDFS_END -->/;
-          if (regex.test(readme)) {
-            readme = readme.replace(regex, tableMarkdown);
-          } else {
-            readme += "\n\n" + tableMarkdown;
-          }
-          fs.writeFileSync("README.md", readme);
+            const regex = /<!-- LATEST_PDFS_START -->[\s\S]*?<!-- LATEST_PDFS_END -->/;
+            if (regex.test(readme)) {
+              readme = readme.replace(regex, tableMarkdown);
+            } else {
+              readme += "\n\n" + tableMarkdown;
+            }
+
+            fs.writeFileSync("README.md", readme);
           '
 
       - name: Hacer commit y push del README.md actualizado
@@ -386,7 +387,7 @@ jobs:
     name: Sincronizar artefactos
     if: always() && (github.event.action == 'closed' || needs.detect-changes.outputs.has_changes == 'true')
     needs: [detect-changes, compile-latex]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Conservar artefactos de PRs abiertas y solo el último fusionado de cada proyecto
         uses: actions/github-script@v7
@@ -411,6 +412,7 @@ jobs:
               repo,
               per_page: 100
             });
+
             const activeArtifacts = artifacts
               .filter(a => !a.expired)
               .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
@@ -420,7 +422,6 @@ jobs:
 
             for (const artifact of activeArtifacts) {
               const prMatch = artifact.name.match(/^(.+)-pr-(\d+)$/);
-
               if (prMatch) {
                 const prNumber = prMatch[2];
                 // Si la PR ya NO está abierta (fue fusionada o rechazada), o si es un duplicado viejo de la misma PR
@@ -455,7 +456,6 @@ jobs:
               repo,
               per_page: 100
             });
-
             for (const release of releases) {
               const prTagMatch = release.tag_name.match(/^pr-(\d+)$/);
               if (prTagMatch) {
@@ -479,4 +479,3 @@ jobs:
                 }
               }
             }
-
