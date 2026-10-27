@@ -44,11 +44,7 @@
             "command": "powershell",
             "args": [
                 "-Command",
-                "Copy-Item",
-                "-Path",
-                "'%DIR%/build/%DOCFILE%.pdf'",
-                "-Destination",
-                "'%DIR%/%DOCFILE%.pdf'"
+                "Copy-Item -Path '%DIR%/build/%DOCFILE%.pdf' -Destination '%DIR%/%DOCFILE%.pdf'; Copy-Item -Path '%DIR%/build/%DOCFILE%.synctex.gz' -Destination '%DIR%/%DOCFILE%.synctex.gz'"
             ],
             "env": {}
         }
