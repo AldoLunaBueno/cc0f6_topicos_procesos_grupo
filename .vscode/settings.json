@@ -1,18 +1,31 @@
-
 {
     "editor.wordWrap": "on",
     "latex-workshop.view.pdf.viewer": "tab",
     "latex-workshop.latex.outDir": "%DIR%/build",
     "latex-workshop.latex.recipes": [
         {
-            "name": "latexmk ➞ copiarPDF",
+            "name": "compilarPUML ➞ latexmk ➞ copiarPDF",
             "tools": [
+                "compilarPUML",
                 "latexmk",
                 "copiarPDF"
             ]
         }
     ],
     "latex-workshop.latex.tools": [
+        {
+            "name": "compilarPUML",
+            "command": "powershell",
+            "args": [
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "%DIR%/scripts/build_puml.ps1",
+                "-BaseDir",
+                "%DIR%"
+            ],
+            "env": {}
+        },
         {
             "name": "latexmk",
             "command": "latexmk",
