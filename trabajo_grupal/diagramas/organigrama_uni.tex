@@ -1,0 +1,129 @@
+% ==============================================================================
+% Diagrama: Organigrama Funcional Institucional (Enfoque Proceso de Matrícula)
+% Estilo modular y declarativo con macros reutilizables y posicionamiento relativo
+% ==============================================================================
+
+\begin{figure}[H]
+\centering
+
+% Definición de macros para la estructura del organigrama
+\providecommand{\nodoOrg}[4][]{%
+    % #1: opciones de posición relativa (ej. below=of..., right=of...)
+    % #2: nombre o id del nodo
+    % #3: texto de contenido
+    % #4: estilo visual
+    \node[#4, #1] (#2) {#3};
+}
+
+\providecommand{\conectarOrtogonal}[2]{%
+    % Conexión estándar padre-hijo (salida por el sur, entrada ortogonal por el norte)
+    \draw[lineaOrg] (#1.south) -- ++(0,-0.45) -| (#2.north);
+}
+
+\providecommand{\conectarLista}[2]{%
+    % Conexión vertical tipo lista (salida por el oeste/sur hacia la izquierda del hijo)
+    \draw[lineaOrg] (#1.west) -| (#2.west);
+}
+
+\begin{tikzpicture}[
+    >=Latex,
+    node distance=0.6cm and 0.6cm,
+    % Estilos visuales por jerarquía funcional
+    baseBox/.style={
+        rectangle, 
+        rounded corners=2pt, 
+        draw=black!75, 
+        thick, 
+        align=center, 
+        font=\small\sffamily,
+        inner sep=5pt
+    },
+    nivelRector/.style={
+        baseBox, 
+        fill=blue!15, 
+        text width=6.2cm, 
+        minimum height=0.9cm, 
+        font=\small\bfseries\sffamily
+    },
+    nivelCentral/.style={
+        baseBox, 
+        fill=cyan!12, 
+        text width=3.8cm, 
+        minimum height=0.85cm
+    },
+    nivelFacultad/.style={
+        baseBox, 
+        fill=orange!15, 
+        text width=4.8cm, 
+        minimum height=0.85cm, 
+        font=\small\bfseries\sffamily
+    },
+    nivelUnidad/.style={
+        baseBox, 
+        fill=gray!10, 
+        draw=black!60, 
+        text width=3.8cm, 
+        minimum height=0.75cm, 
+        font=\footnotesize\sffamily
+    },
+    lineaOrg/.style={
+        draw=black!70, 
+        thick
+    }
+]
+
+    % --------------------------------------------------------------------------
+    % 1. Nivel Superior / Alta Dirección
+    % --------------------------------------------------------------------------
+    \nodoOrg{rectorado}{Rectorado / Consejo Universitario}{nivelRector}
+    \nodoOrg[below=0.6cm of rectorado]{vrad}{Vicerrectorado Académico}{nivelRector}
+    \draw[lineaOrg] (rectorado.south) -- (vrad.north);
+
+    % Punto de bifurcación central debajo del VRAD
+    \coordinate (bifurcacion) at ($(vrad.south) + (0,-0.45)$);
+    \draw[lineaOrg] (vrad.south) -- (bifurcacion);
+
+    % --------------------------------------------------------------------------
+    % 2. Órganos Centrales de Apoyo y Registro (Lado Izquierdo)
+    % --------------------------------------------------------------------------
+    \nodoOrg[below left=0.8cm and 0.4cm of vrad]{dirce}{\textbf{DIRCE / ORCE}\\(Registros Centrales y Matrícula)}{nivelCentral}
+    \nodoOrg[below=0.5cm of dirce]{salud}{\textbf{Centro Médico / Bienestar}\\(Autoseguro Estudiantil)}{nivelCentral}
+    \nodoOrg[below=0.5cm of salud]{diga}{\textbf{DIGA / Tesorería}\\(Validación de Tasas / Deudas)}{nivelCentral}
+
+    % --------------------------------------------------------------------------
+    % 3. Órgano de Línea Académica Descentralizada: Facultad de Ciencias (Lado Derecho)
+    % --------------------------------------------------------------------------
+    \nodoOrg[below right=0.8cm and 0.4cm of vrad]{decanato}{Facultad de Ciencias\\(Decanato / Consejo de Facultad)}{nivelFacultad}
+    
+    % Unidades internas de la Facultad de Ciencias vinculadas a la matrícula
+    \nodoOrg[below=0.5cm of decanato]{comision}{\textbf{Comisión de Matrícula}\\(Casos especiales y rectificaciones)}{nivelUnidad}
+    \nodoOrg[below=0.4cm of comision]{escuelas}{\textbf{Escuelas Profesionales}\\(CC, Física, Matemática, Química)}{nivelUnidad}
+    \nodoOrg[below=0.4cm of escuelas]{dptos}{\textbf{Departamentos Académicos}\\(Carga docente y horarios)}{nivelUnidad}
+    \nodoOrg[below=0.4cm of dptos]{estadistica}{\textbf{Oficina de Estadística / AERA}\\(Apertura de cursos en sistema)}{nivelUnidad}
+
+    % --------------------------------------------------------------------------
+    % 4. Enlaces y ramificación
+    % --------------------------------------------------------------------------
+    % Conexión desde el punto de bifurcación a DIRCE y Decanato
+    \draw[lineaOrg] (bifurcacion) -| (dirce.north);
+    \draw[lineaOrg] (bifurcacion) -| (decanato.north);
+
+    % Conexiones verticales en bloque central
+    \draw[lineaOrg] (dirce.south) -- (salud.north);
+    \draw[lineaOrg] (salud.south) -- (diga.north);
+
+    % Conexiones verticales en bloque de facultad
+    \draw[lineaOrg] (decanato.south) -- (comision.north);
+    \draw[lineaOrg] (comision.south) -- (escuelas.north);
+    \draw[lineaOrg] (escuelas.south) -- (dptos.north);
+    \draw[lineaOrg] (dptos.south) -- (estadistica.north);
+
+    % Agrupación visual por áreas
+    \node[draw=blue!40, dashed, rounded corners, fit=(dirce)(salud)(diga), inner sep=6pt, label=above:{\footnotesize\bfseries\color{blue!80!black} Órganos Centrales de Soporte}] {};
+    \node[draw=orange!50, dashed, rounded corners, fit=(decanato)(comision)(escuelas)(dptos)(estadistica), inner sep=6pt, label=above:{\footnotesize\bfseries\color{orange!80!black} Nivel de Facultad}] {};
+
+\end{tikzpicture}
+\caption{Estructura organizacional funcional vinculada al proceso de matrícula regular.}
+\label{fig:organigrama_uni}
+\end{figure}
+

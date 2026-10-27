@@ -37,3 +37,6 @@
 /temp
 
 .env
+
+build/
+trabajo_grupal/build/

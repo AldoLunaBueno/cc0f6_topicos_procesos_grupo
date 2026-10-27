@@ -1,5 +1,25 @@
 \subsubsection{Subproceso 1: Acreditación y Pre-requisitos}
 
-% TODO: Describir los principales hallazgos obtenidos mediante la técnica e instrumento (actividades realizadas, tiempos de espera, problemas encontrados).
-\textit{[Pendiente: Presentar los hallazgos obtenidos en el Subproceso 1 (actividades observadas, tiempos de espera y problemas identificados).]}
+A partir de la revisión documental y la observación del sistema en el periodo 2026-2, se obtuvieron los siguientes resultados sobre el Subproceso 1:
 
+\textbf{Actividades observadas y flujo efectivo:}
+\begin{itemize}
+    \item En la pestaña \textit{Matrícula} de la Intranet DIRCE, el sistema muestra cuatro controles de habilitación: \textit{Grupo de matrícula} (con el grupo y rango horario asignado), \textit{Bloqueos}, \textit{Adeudos} y \textit{Pagos} (indicando la fecha en que se pagó el autoseguro estudiantil). % ; ver Figura~\ref{fig:ev1_requisitos}
+    \item En la pestaña \textit{Home}, el portal muestra la «Ficha de matrícula» (periodo, plan de estudios, especialidad, tope de créditos máximos y estado) junto con el cuadro «Grupos de matrícula de tu facultad», donde se listan los turnos de Riesgo Académico, Promoción 1, Promoción 2 y los grupos regulares por orden de mérito. % (ver Figura~\ref{fig:ev1_ficha})
+    \item La ficha de matrícula de cada estudiante se genera tomando los datos de la base del periodo académico anterior guardada en la DIRCE.
+\end{itemize}
+
+\textbf{Tiempos de espera identificados:}
+\begin{itemize}
+    \item \textbf{Demora en actualizar fichas con trámites previos:} Cuando un estudiante tiene una exoneración o convalidación pendiente, el sistema no actualiza su ficha de forma automática; el alumno debe esperar a que el documento llegue desde la Facultad hasta la DIRCE para poder habilitar su matrícula.
+    \item \textbf{Retraso por cierre de notas y reclamos:} Si las actas o reclamos de notas del ciclo anterior demoran en cerrarse, se retrasa el cálculo de promedios y la publicación de los turnos de matrícula.
+\end{itemize}
+
+\textbf{Problemas identificados:}
+\begin{itemize}
+    \item \textbf{Caída nocturna de los portales Intralu e Intranet DIRCE:} Durante el levantamiento de información se comprobó que ambos portales (\url{https://alumnos.uni.edu.pe/} y \url{https://dirce.uni.edu.pe/}) estuvieron fuera de servicio desde las 11:00~p.\,m., rechazando la conexión (\texttt{ERR\_CONNECTION\_REFUSED}; ver Figura~\ref{fig:ev1_caidos}). Esta falta de disponibilidad continua impide que los estudiantes revisen sus pagos, deudas, ficha de matrícula o turno asignado en horario nocturno, por lo que constituye un punto importante a mejorar.
+    \item \textbf{Falta de control real de adeudos en el proceso 2026-2:} Aunque la normativa exige no tener deudas con la Facultad~\cite[Nota~1]{tupa2024}, en la matrícula 2026-2 el sistema no distinguió entre alumnos con o sin adeudos; bastó haber pagado el autoseguro médico para quedar habilitado y matricularse.
+    \item \textbf{Bloqueo a estudiantes con exoneraciones o convalidaciones en trámite:} Como la ficha se arma con los datos cerrados del ciclo anterior, los alumnos que tramitan una exoneración o convalidación no pueden matricularse en su turno hasta que la DIRCE reciba y registre manualmente el trámite enviado por la Facultad.
+    \item \textbf{Error en el cambio de plan de estudios y cursos sin convalidar (caso Ingeniería Física):} Por lo general, los alumnos a un año de egresar mantienen su plan original; sin embargo, en el ciclo 2026-2 se cambió de plan de estudios a los estudiantes de Ingeniería Física sin una buena planificación previa, dejando varios cursos ya aprobados sin convalidar dentro de sus fichas de matrícula.
+    \item \textbf{Falla en la asignación del turno de promoción (caso Física):} El sistema no reconoció como egresantes a los alumnos de promoción de la escuela de Física, por lo que no les asignó el turno preferencial que les correspondía~\cite[Art.~42\textdegree{}]{reglamento2022}, sino un número de orden y turno regular según su promedio.
+\end{itemize}
