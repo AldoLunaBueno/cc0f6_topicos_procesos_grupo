@@ -9,79 +9,70 @@ skinparam dpi 100
 skinparam ActivityFontSize 12
 skinparam NoteFontSize 11
 
-|Estudiante|
-|Oficina de Estadística de Facultad|
-|Oficina central de registro (DIRCE)|
-|Docentes|
-|SUNEDU / MINEDU|
-
-|Estudiante|
+|Estudiante Regular|
 start
 :Entrega de la Pre-Ficha
 Aprobada o Subsanada
 (del Subproceso 3.A);
 
-|Oficina central de registro (DIRCE)|
+|Dirección de Registro\nCentral y Estadística (DIRCE)|
 :Registra la matrícula en el
 SIGA (aprobación automática,
 TUPA PA5400954D);
 :Genera el Reporte
 de Matrícula;
 
-|Oficina de Estadística de Facultad|
+|Oficina de Estadística de la Facultad|
 if (¿Rezagados o rectificaciones autorizados?) then (sí)
-  :Registra autorizaciones de
-  la primera semana (Art. 77°);
+  :Registra las autorizaciones aprobadas
+  por la Dirección de Escuela (Art. 77°);
 else (no)
 endif
 :Recaba la estadística
 por sección (Art. 75°);
 if (¿Electivas con menos de 6 inscritos?) then (sí)
-  :Electivas en riesgo de
-  eliminación o reposición;
+  :Publica las electivas en riesgo
+  de eliminación (Art. 75°);
 else (no)
 endif
-:Comunica el cierre a la central
-de registro y remite el archivo
-digital de matrículas (Art. 78°);
-note right: Archivo digital de matrículas
+:Remite el archivo digital de consolidación
+y comunica el cierre a
+la DIRCE (Art. 78°);
 if (¿Modificación extemporánea solicitada?) then (sí)
   :Solicita la modificación
-  extemporánea a la central
+  extemporánea a la DIRCE
   (sin acceso directo);
-  |Oficina central de registro (DIRCE)|
+  |Dirección de Registro\nCentral y Estadística (DIRCE)|
   :Procesa la solicitud y
   actualiza el registro;
 else (no)
 endif
-|Oficina de Estadística de Facultad|
-:Visa el Reporte y la
-Boleta de Matrícula;
-note right: Boleta de Matrícula oficial visada
-if (¿Visado conforme?) then (sí)
-else (no)
-  :Observación y reproceso
-  del visado;
-  :Omisión por visado no conforme;
-  end
-endif
-:Prepara los padrones
-oficiales de asignatura
-y sección;
-|Docentes|
+|Oficina de Estadística de la Facultad|
+repeat
+  :Visa el Reporte y la
+  Boleta de Matrícula;
+  note right
+  Documento exigido en becas,
+  seguros y carné
+  end note
+backward:Observación y reproceso del visado;
+repeatwhile (¿Visado conforme?) is (no)
+:Prepara los padrones para los
+Docentes de Asignatura (Art. 78°);
+note right: Padrones por asignatura y sección
+|Docentes de Asignatura|
 :Recibe los padrones de clase el
 primer día hábil de la segunda
 semana (Art. 78°);
-note right: Padrones por asignatura y sección
-|Oficina central de registro (DIRCE)|
-:Pone a disposición de las Facultades
-el registro, las Boletas y el SIGA
-actualizado en hasta 10 días hábiles
-tras el cierre (Art. 80°);
-|SUNEDU / MINEDU|
-:Recibe y valida el padrón
-nacional de matriculados en el
-plazo legal de 20 días (Art. 79°);
+|Organismos Nacionales\n(SUNEDU y MINEDU)|
+:Recibe y valida el padrón nacional
+de matriculados remitido por la DIRCE
+(Art. 79°);
+|Dirección de Registro\nCentral y Estadística (DIRCE)|
+:Pone a disposición de las Facultades el
+registro, las Boletas y el SIGA actualizado
+en hasta 10 días hábiles tras el cierre
+(Art. 80°);
 :Matrícula oficializada;
 stop
 @enduml
