@@ -1,0 +1,87 @@
+@startuml asis_subproceso_3b_bpmn
+title Modelo BPMN AS IS - Subproceso 3.B (carriles por actor)
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam ArrowColor #333333
+skinparam ActivityBorderColor #333333
+skinparam ConditionEndStyle diamond
+skinparam dpi 100
+skinparam ActivityFontSize 12
+skinparam NoteFontSize 11
+
+|Estudiante|
+|Oficina de Estadística de Facultad|
+|Oficina central de registro (DIRCE)|
+|Docentes|
+|SUNEDU / MINEDU|
+
+|Estudiante|
+start
+:Entrega de la Pre-Ficha
+Aprobada o Subsanada
+(del Subproceso 3.A);
+
+|Oficina central de registro (DIRCE)|
+:Asentamiento transaccional en
+el SIGA (aprobación automática,
+TUPA PA5400954D);
+:Genera el Reporte
+de Matrícula;
+
+|Oficina de Estadística de Facultad|
+if (¿Rezagados o rectificaciones autorizados?) then (sí)
+  :Registra autorizaciones de
+  la primera semana (Art. 77°);
+else (no)
+endif
+:Recaba la estadística
+por sección (Art. 75°);
+if (¿Electivas con menos de 6 inscritos?) then (sí)
+  :Electivas en riesgo de
+  eliminación o reposición;
+else (no)
+endif
+:Comunica el cierre a la central
+de registro y remite el archivo
+digital de consolidación (Art. 78°);
+note right: Archivo digital de consolidación
+if (¿Modificación extemporánea solicitada?) then (sí)
+  :Solicita la modificación
+  extemporánea a la central
+  (sin acceso directo);
+  |Oficina central de registro (DIRCE)|
+  :Procesa la solicitud y
+  re-emite el registro;
+else (no)
+endif
+|Oficina de Estadística de Facultad|
+:Visa el Reporte y la
+Boleta de Matrícula;
+note right: Boleta de Matrícula oficial visada
+if (¿Visado conforme?) then (sí)
+else (no)
+  :Observación y reproceso
+  del visado;
+  :Omisión por visado no conforme;
+  end
+endif
+:Prepara los padrones
+oficiales de asignatura
+y sección;
+|Docentes|
+:Recibe los padrones de clase el
+primer día hábil de la segunda
+semana (Art. 78°);
+note right: Padrones por asignatura y sección
+|Oficina central de registro (DIRCE)|
+:Pone a disposición de las Facultades
+el registro, las Boletas y el SIGA
+actualizado en hasta 10 días hábiles
+tras el cierre (Art. 80°);
+|SUNEDU / MINEDU|
+:Recibe y valida la nómina
+consolidada en el plazo legal
+de 20 días (Art. 79°);
+:Matrícula oficializada;
+stop
+@enduml
