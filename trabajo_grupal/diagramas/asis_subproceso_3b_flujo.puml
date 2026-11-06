@@ -20,17 +20,17 @@ digraph {
 
   inicio [shape=oval, style=filled, fillcolor="#4472C4", fontcolor="#FFFFFF", label="Inicio"];
   preficha [label="Pre-Ficha Aprobada\no Subsanada\n(Subproceso 3.A)"];
-  asienta [label="Asentamiento transaccional\nen el SIGA (aprobación\nautomática, TUPA PA5400954D)"];
+  asienta [label="Registra la matrícula\nen el SIGA (aprobación\nautomática, TUPA PA5400954D)"];
   d77 [shape=diamond, label="¿Rezagados o\nrectificaciones\nautorizados?"];
   autoriz [label="Registro de\nautorizaciones de la\nprimera semana (Art. 77°)"];
   depura [label="Semana de depuración:\nrecibo de la estadística\npor sección (Art. 75°)"];
   dele [shape=diamond, label="¿Electivas con\nmenos de 6\ninscritos?"];
   riesgo [label="Electivas en riesgo\nde eliminación\no reposición"];
 
-  cierre [label="La Facultad comunica el\ncierre y remite el archivo\ndigital de consolidación\n(Art. 78°)"];
+  cierre [label="La Facultad comunica el\ncierre y remite el archivo\ndigital de matrículas\n(Art. 78°)"];
   dext [shape=diamond, label="¿Modificación\nextemporánea\nsolicitada?"];
   solici [label="La Facultad solicita\nla modificación a\nla central (sin acceso\ndirecto de edición)"];
-  reemite [label="La central procesa\ny re-emite el registro"];
+  reemite [label="La central procesa la\nsolicitud y actualiza el\nregistro"];
 
   visado [label="Visado del Reporte y de\nla Boleta por la Oficina\nde Estadística de Facultad"];
   dvis [shape=diamond, label="¿Visado\nconforme?"];
@@ -44,7 +44,7 @@ digraph {
   nota_plazo [shape=note, style=filled, fillcolor="#FFF2CC", color="#8C7A2B", label="Plazo legal:\n20 días desde la\nmatrícula regular\n(Art. 79°)"];
   nota_acceso [shape=note, style=filled, fillcolor="#FFF2CC", color="#8C7A2B", label="Hallazgo del levantamiento:\nmodificación extemporánea solo\npor solicitud manual a la central\n(registro de campo 2026-2)"];
 
-  /' Fila 1: habilitacio'n, asentamiento y semana de verificación '/
+  /' Fila 1: habilitación, registro y semana de verificación '/
   {rank=same; d77; autoriz;}
   {rank=same; dele; riesgo;}
   inicio -> preficha;
@@ -63,7 +63,7 @@ digraph {
   cierre -> dext;
   dext -> solici [label="sí"];
   solici -> reemite;
-  reemite -> cierre [constraint=false, style=dashed, label="re-consolida"];
+  reemite -> cierre [constraint=false, style=dashed, label="registro actualizado"];
 
   /' Fila 3: visado y despliegue del registro oficial '/
   {rank=same; dvis; obsrev;}

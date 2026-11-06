@@ -22,8 +22,8 @@ Aprobada o Subsanada
 (del Subproceso 3.A);
 
 |Oficina central de registro (DIRCE)|
-:Asentamiento transaccional en
-el SIGA (aprobación automática,
+:Registra la matrícula en el
+SIGA (aprobación automática,
 TUPA PA5400954D);
 :Genera el Reporte
 de Matrícula;
@@ -43,15 +43,15 @@ else (no)
 endif
 :Comunica el cierre a la central
 de registro y remite el archivo
-digital de consolidación (Art. 78°);
-note right: Archivo digital de consolidación
+digital de matrículas (Art. 78°);
+note right: Archivo digital de matrículas
 if (¿Modificación extemporánea solicitada?) then (sí)
   :Solicita la modificación
   extemporánea a la central
   (sin acceso directo);
   |Oficina central de registro (DIRCE)|
   :Procesa la solicitud y
-  re-emite el registro;
+  actualiza el registro;
 else (no)
 endif
 |Oficina de Estadística de Facultad|
@@ -79,9 +79,9 @@ el registro, las Boletas y el SIGA
 actualizado en hasta 10 días hábiles
 tras el cierre (Art. 80°);
 |SUNEDU / MINEDU|
-:Recibe y valida la nómina
-consolidada en el plazo legal
-de 20 días (Art. 79°);
+:Recibe y valida el padrón
+nacional de matriculados en el
+plazo legal de 20 días (Art. 79°);
 :Matrícula oficializada;
 stop
 @enduml
