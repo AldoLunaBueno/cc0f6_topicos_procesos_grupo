@@ -1,4 +1,4 @@
-@startuml flujograma_sp2
+@startuml asis_subproceso_2_flujo
 skinparam DefaultFontName Arial
 skinparam DefaultFontSize 11
 skinparam ActivityBackgroundColor #DDEEFF

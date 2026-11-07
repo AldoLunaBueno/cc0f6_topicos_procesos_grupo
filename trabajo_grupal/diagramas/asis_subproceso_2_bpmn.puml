@@ -1,4 +1,4 @@
-@startuml bpmn_sp2
+@startuml asis_subproceso_2_bpmn
 skinparam DefaultFontName Arial
 skinparam DefaultFontSize 10
 skinparam ActivityBackgroundColor #DDEEFF
