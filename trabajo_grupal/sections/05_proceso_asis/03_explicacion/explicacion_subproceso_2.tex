@@ -1,0 +1,47 @@
+A continuaci\'on se describe el flujo paso a paso tal como ocurre en la actualidad:
+
+\begin{enumerate}
+    \item \textbf{Configuraci\'on previa (Comisi\'on de Matr\'icula):} Antes de abrir el
+    per\'iodo de matr\'icula, la comisi\'on registra en el SIGA-ORCE la oferta de cursos, los
+    turnos asignados por facultad o especialidad, y los cupos m\'aximos por secci\'on.
+
+    \item \textbf{Acceso al sistema (Estudiante):} El estudiante ingresa a la Intranet
+    DIRCE con su c\'odigo de matr\'icula y contrase\~na institucional. El sistema autentica sus
+    credenciales y verifica si su turno de matr\'icula se encuentra vigente.
+
+    \item \textbf{Despliegue de oferta (Sistema):} Una vez validado el turno, el sistema
+    presenta la lista de cursos habilitados para el semestre, con informaci\'on de horarios,
+    secciones y vacantes disponibles en tiempo real.
+
+    \item \textbf{Selecci\'on de cursos (Estudiante):} El estudiante elige los cursos de
+    su plan de estudios y construye un horario tentativo. Esta actividad puede repetirse
+    m\'ultiples veces si las validaciones posteriores detectan inconsistencias.
+
+    \item \textbf{Validaci\'on de cr\'editos (Sistema):} Conforme al Reglamento RR-0570-2022, el sistema calcula la suma de cr\'editos de los cursos seleccionados y la compara con el l\'imite permitido seg\'un el promedio ponderado acumulado del estudiante.
+    Si el l\'imite es superado, el estudiante debe ajustar su selecci\'on.
+
+    \item \textbf{Validaci\'on de horarios (Sistema):} Se verifica que no existan cruces
+    entre los horarios de los cursos seleccionados. Si se detecta un conflicto, el
+    estudiante regresa a la etapa de selecci\'on.
+
+    \item \textbf{Validaci\'on de vacantes (Sistema):} El sistema confirma que al menos
+    una vacante est\'e disponible en cada secci\'on elegida. Si no hay vacantes, el caso es
+    derivado autom\'aticamente al Subproceso de Rectificaci\'on (SP3A), donde el estudiante
+    podr\'a solicitar un cupo adicional.
+
+    \item \textbf{Confirmaci\'on de inscripci\'on (Estudiante):} Superadas las tres
+    validaciones, el estudiante revisa su horario final y confirma la inscripci\'on.
+
+    \item \textbf{Emisi\'on de Pre-Ficha (Sistema):} El sistema registra formalmente la
+    matr\'icula, genera la Pre-Ficha con el detalle de cursos y cr\'editos inscritos, y
+    reserva las vacantes seleccionadas para el estudiante.
+\end{enumerate}
+
+\noindent
+\textbf{Problem\'atica identificada en el proceso AS IS:} El flujo actual presenta
+dependencia total de la conectividad a la Intranet DIRCE. Ante ca\'idas del sistema
+durante los turnos de matr\'icula, el proceso queda bloqueado sin procedimiento
+alternativo documentado. La ausencia de notificaciones proactivas obliga al
+estudiante a monitorear manualmente la disponibilidad de vacantes, generando reingresos
+repetidos al sistema. Estos problemas se abordan en la propuesta de mejora (proceso
+TO BE) del Subproceso~2.

@@ -1,0 +1,23 @@
+El flujograma de la Figura~\ref{fig:asis_subproceso_2_flujo} muestra la secuencia l\'ogica
+de actividades, decisiones y flujos de retorno del Subproceso~2 en notaci\'on cl\'asica:
+\'ovalos para inicio/fin, rect\'angulos para actividades y rombos para decisiones.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.72\textwidth]{asis_subproceso_2_flujo.png}
+    \caption{Flujograma AS IS -- Subproceso 2: Selecci\'on y Registro de Cursos.}
+    \label{fig:asis_subproceso_2_flujo}
+\end{figure}
+
+El proceso inicia cuando el estudiante accede a la Intranet DIRCE con sus credenciales
+institucionales. El sistema despliega la oferta de cursos habilitada para su turno de
+matr\'icula. A continuaci\'on, el estudiante selecciona cursos y arma su horario tentativo,
+enfrentando tres validaciones autom\'aticas: (i)~l\'imite de cr\'editos seg\'un el promedio
+ponderado acumulado (Reglamento RR-0570-2022), (ii)~cruces de horario entre cursos
+seleccionados y (iii)~disponibilidad de vacantes. Las dos primeras validaciones generan
+un bucle de retorno hacia la selecci\'on de cursos; la tercera, en caso de no existir
+vacantes, deriva el caso al Subproceso de Rectificaci\'on (SP3A). Si todas las validaciones
+son superadas, el estudiante confirma su inscripci\'on y el sistema emite la Pre-Ficha de
+matr\'icula reservando las vacantes correspondientes.
+
+%% ----------------------------------------------------------
