@@ -1,0 +1,80 @@
+@startdot asis_subproceso_3b_flujo
+/' Diagrama de flujo AS IS - Subproceso 3.B: Confirmación y Registro Oficial.
+   Fuente editable (PlantUML/DOT). Se renderiza por plantuml -tpng.
+   La orientación horizontal usa el motor DOT (rankdir=LR) del mismo binario
+   de PlantUML; el motor de actividades no admite dirección horizontal. '/
+digraph {
+  rankdir=LR;
+  bgcolor="#FFFFFF";
+  nodesep=0.28;
+  ranksep=0.42;
+  dpi=120;
+
+  label="Proceso AS IS - Subproceso 3.B: Confirmación y Registro Oficial (flujo)";
+  labelloc=t; fontsize=15; fontname="Helvetica"; labeljust=c;
+
+  node [fontname="Arial", fontsize=11, fontcolor="#333333",
+        shape=box, style="rounded,filled", fillcolor="#FFFFFF",
+        color="#333333", margin="0.09,0.045"];
+  edge [color="#333333", fontname="Arial", fontsize=10, fontcolor="#333333", arrowsize=0.7];
+
+  inicio [shape=oval, style=filled, fillcolor="#4472C4", fontcolor="#FFFFFF", label="Inicio"];
+  preficha [label="Pre-Ficha Aprobada\no Subsanada\n(Subproceso 3.A)"];
+  asienta [label="La DIRCE registra la matrícula\nen el SIGA y genera el Reporte\nde Matrícula (aprobación automática,\nTUPA PA5400954D)"];
+  d77 [shape=diamond, label="¿Rezagados o\nrectificaciones\nautorizados?"];
+  autoriz [label="Registro de\nautorizaciones de la\nprimera semana (Art. 77°)"];
+  depura [label="Semana de verificación:\nrecibo de la estadística\npor sección (Art. 75°)"];
+  dele [shape=diamond, label="¿Electivas con\nmenos de 6\ninscritos?"];
+  riesgo [label="Electivas en riesgo\nde eliminación"];
+
+  cierre [label="La Facultad comunica el\ncierre y remite el archivo\ndigital de consolidación\n(Art. 78°)"];
+  dext [shape=diamond, label="¿Modificación\nextemporánea\nsolicitada?"];
+  solici [label="La Facultad solicita la\nmodificación a la DIRCE\n(sin acceso directo de edición)"];
+  reemite [label="La DIRCE procesa la\nsolicitud y actualiza el registro"];
+
+  visado [label="Visado del Reporte y de\nla Boleta por la Oficina\nde Estadística de Facultad"];
+  dvis [shape=diamond, label="¿Visado\nconforme?"];
+  obsrev [label="Observación\ny reproceso"];
+
+  padron [label="Padrones de clase a los\ndocentes el primer día\nhábil de la segunda semana\n(Art. 78°)", fillcolor="#EDEDED"];
+  dispo [label="Registro y Boletas a\ndisposición de las\nFacultades en hasta\n10 días hábiles (Art. 80°)", fillcolor="#EDEDED"];
+  externo [label="Reporte a SUNEDU y\nMINEDU (Art. 79°)", fillcolor="#EDEDED"];
+  fin [shape=oval, style=filled, fillcolor="#4472C4", fontcolor="#FFFFFF", label="Fin:\nMatrícula\noficializada"];
+
+  nota_plazo [shape=note, style=filled, fillcolor="#FFF2CC", color="#8C7A2B", label="Plazo legal:\n20 días desde la\nmatrícula regular\n(Art. 79°)"];
+  nota_acceso [shape=note, style=filled, fillcolor="#FFF2CC", color="#8C7A2B", label="Hallazgo del registro de campo:\nmodificación extemporánea solo\npor solicitud manual a la DIRCE\n(periodo 2026-2)"];
+
+  /' Fila 1: habilitación, registro y semana de verificación '/
+  {rank=same; d77; autoriz;}
+  {rank=same; dele; riesgo;}
+  inicio -> preficha;
+  preficha -> asienta;
+  asienta -> depura;
+  depura -> d77;
+  d77 -> autoriz [label="sí"];
+  autoriz -> asienta [constraint=false, style=dashed, label="reproceso"];
+  d77 -> dele [label="no"];
+  dele -> riesgo [label="sí"];
+
+  /' Fila 2: cierre y modificaciones extemporáneas '/
+  {rank=same; solici; reemite; nota_acceso;}
+  dele -> cierre [label="no", constraint=false];
+  riesgo -> cierre [constraint=false];
+  cierre -> dext;
+  dext -> solici [label="sí"];
+  solici -> reemite;
+  reemite -> cierre [constraint=false, style=dashed, label="registro actualizado"];
+
+  /' Fila 3: visado y despliegue del registro oficial '/
+  {rank=same; dvis; obsrev;}
+  dext -> visado [label="no", constraint=false];
+  visado -> dvis;
+  dvis -> obsrev [label="no"];
+  obsrev -> visado [constraint=false, label="revisa"];
+  dvis -> padron [label="sí"];
+  padron -> externo;
+  externo -> dispo;
+  dispo -> fin;
+  externo -> nota_plazo [style=dashed, arrowhead=none];
+}
+@enddot

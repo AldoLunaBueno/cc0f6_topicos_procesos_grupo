@@ -1,0 +1,78 @@
+@startuml asis_subproceso_3b_bpmn
+title Modelo BPMN AS IS - Subproceso 3.B (carriles por actor)
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam ArrowColor #333333
+skinparam ActivityBorderColor #333333
+skinparam ConditionEndStyle diamond
+skinparam dpi 100
+skinparam ActivityFontSize 12
+skinparam NoteFontSize 11
+
+|Estudiante Regular|
+start
+:Entrega de la Pre-Ficha
+Aprobada o Subsanada
+(del Subproceso 3.A);
+
+|Dirección de Registro\nCentral y Estadística (DIRCE)|
+:Registra la matrícula en el
+SIGA (aprobación automática,
+TUPA PA5400954D);
+:Genera el Reporte
+de Matrícula;
+
+|Oficina de Estadística de la Facultad|
+if (¿Rezagados o rectificaciones autorizados?) then (sí)
+  :Registra las autorizaciones aprobadas
+  por la Dirección de Escuela (Art. 77°);
+else (no)
+endif
+:Recaba la estadística
+por sección (Art. 75°);
+if (¿Electivas con menos de 6 inscritos?) then (sí)
+  :Publica las electivas en riesgo
+  de eliminación (Art. 75°);
+else (no)
+endif
+:Remite el archivo digital de consolidación
+y comunica el cierre a
+la DIRCE (Art. 78°);
+if (¿Modificación extemporánea solicitada?) then (sí)
+  :Solicita la modificación
+  extemporánea a la DIRCE
+  (sin acceso directo);
+  |Dirección de Registro\nCentral y Estadística (DIRCE)|
+  :Procesa la solicitud y
+  actualiza el registro;
+else (no)
+endif
+|Oficina de Estadística de la Facultad|
+repeat
+  :Visa el Reporte y la
+  Boleta de Matrícula;
+  note right
+  Documento exigido en becas,
+  seguros y carné
+  end note
+backward:Observación y reproceso del visado;
+repeatwhile (¿Visado conforme?) is (no)
+:Prepara los padrones para los
+Docentes de Asignatura (Art. 78°);
+note right: Padrones por asignatura y sección
+|Docentes de Asignatura|
+:Recibe los padrones de clase el
+primer día hábil de la segunda
+semana (Art. 78°);
+|Organismos Nacionales\n(SUNEDU y MINEDU)|
+:Recibe y valida el padrón nacional
+de matriculados remitido por la DIRCE
+(Art. 79°);
+|Dirección de Registro\nCentral y Estadística (DIRCE)|
+:Pone a disposición de las Facultades el
+registro, las Boletas y el SIGA actualizado
+en hasta 10 días hábiles tras el cierre
+(Art. 80°);
+:Matrícula oficializada;
+stop
+@enduml
