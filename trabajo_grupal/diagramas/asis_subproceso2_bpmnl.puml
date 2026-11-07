@@ -1,0 +1,62 @@
+@startuml bpmn_sp2
+skinparam DefaultFontName Arial
+skinparam DefaultFontSize 10
+skinparam ActivityBackgroundColor #DDEEFF
+skinparam ActivityBorderColor #185FA5
+skinparam ActivityFontColor #0A2744
+skinparam DiamondBackgroundColor #FFF3CD
+skinparam DiamondBorderColor #BA7517
+skinparam DiamondFontColor #412402
+skinparam ArrowColor #444444
+skinparam StartColor #0D7A5F
+skinparam EndColor #0D7A5F
+skinparam SwimlaneBorderColor #888888
+skinparam SwimlaneBorderThickness 1
+skinparam SwimlaneWidth 400
+
+title Modelo BPMN AS IS\nSubproceso 2: Selección y registro de cursos
+
+|Comisión de Matrícula|
+#EEEEEE:Configura oferta, turnos y cupos\n(actividad previa al proceso);
+
+|Intranet DIRCE / SIGA-ORCE|
+start
+
+|Estudiante Regular|
+#DDEEFF:Acceder a Intranet DIRCE\n(autenticación);
+
+|Intranet DIRCE / SIGA-ORCE|
+#DDEEFF:Desplegar oferta de cursos\nhabilitada para el turno;
+
+|Estudiante Regular|
+label seleccionar
+#D0E8FF:Seleccionar cursos\ny armar horario tentativo;
+
+|Intranet DIRCE / SIGA-ORCE|
+if (¿Excede el límite\nde créditos?) then (Sí)
+  |Estudiante Regular|
+  goto seleccionar
+else (No)
+endif
+
+if (¿Hay cruce\nde horario?) then (Sí)
+  |Estudiante Regular|
+  goto seleccionar
+else (No)
+endif
+
+if (¿Hay vacantes\ndisponibles?) then (No)
+  #FFCCCC:Derivar a Subproceso\nde Rectificación (SP3A);
+  end
+else (Sí)
+endif
+
+|Estudiante Regular|
+#DDEEFF:Confirmar inscripción\ny enviar solicitud;
+
+|Intranet DIRCE / SIGA-ORCE|
+#DDEEFF:Generar Pre-Ficha de matrícula\ny reservar vacantes;
+
+end
+
+@enduml

@@ -1,0 +1,49 @@
+@startuml flujograma_sp2
+skinparam DefaultFontName Arial
+skinparam DefaultFontSize 11
+skinparam ActivityBackgroundColor #DDEEFF
+skinparam ActivityBorderColor #185FA5
+skinparam ActivityFontColor #0A2744
+skinparam DiamondBackgroundColor #FFF3CD
+skinparam DiamondBorderColor #BA7517
+skinparam DiamondFontColor #412402
+skinparam ArrowColor #333333
+skinparam StartColor #0D7A5F
+skinparam EndColor #0D7A5F
+skinparam ActivityShape roundBox
+
+title Flujograma AS IS\nSubproceso 2: Selección y registro de cursos
+
+start
+
+:Acceder a Intranet DIRCE\n(autenticación con credenciales UNI);
+
+:Sistema despliega oferta\nde cursos habilitada en el turno;
+
+label seleccionar
+:Seleccionar cursos y\narmar horario tentativo;
+
+if (¿Excede el límite\nde créditos?) then (Sí)
+  note right: Regla RR-0570-2022\nsegun promedio ponderado
+  goto seleccionar
+else (No)
+endif
+
+if (¿Hay cruce\nde horario?) then (Sí)
+  goto seleccionar
+else (No)
+endif
+
+if (¿Hay vacantes\ndisponibles?) then (No)
+  #FFCCCC:Solicitar Rectificación\n(error: sin vacantes);
+  stop
+else (Sí)
+endif
+
+:Confirmar inscripción\ny enviar solicitud;
+
+:Sistema genera Pre-Ficha\ny reserva vacantes;
+
+stop
+
+@enduml

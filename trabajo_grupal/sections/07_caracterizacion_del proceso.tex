@@ -1,0 +1,221 @@
+
+%  Sección 7: Caracterización del Proceso
+%  Subproceso 2: Selección y Registro de Cursos
+
+\section{Caracterización del proceso}
+
+El presente apartado describe los elementos fundamentales del Subproceso~2:
+\textit{Selección y Registro de Cursos}, correspondiente al proceso de Matrícula
+Regular del Estudiante en la Universidad Nacional de Ingeniería (UNI).
+
+% ------------------------------------------------------------
+\subsection{Actores}
+
+Los actores son las personas, sistemas o áreas que participan directamente
+en la ejecución del subproceso.
+
+\begin{table}[H]
+\centering
+\caption{Actores del Subproceso~2}
+\label{tab:actores_sp2}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{3.8cm}|p{2.5cm}|p{7.5cm}|}
+\hline
+\textbf{Actor} & \textbf{Tipo} & \textbf{Rol} \\
+\hline
+Estudiante regular & Persona &
+  Inicia el proceso, selecciona cursos y envía la propuesta de matrícula. \\
+\hline
+Intranet DIRCE & Software &
+  Portal web (\texttt{dirce.uni.edu.pe}) donde el estudiante accede,
+  visualiza la oferta y registra su selección. \\
+\hline
+SIGA-ORCE & Sistema &
+  Motor \textit{backend} que valida restricciones (créditos, cruces,
+  pre-requisitos) y gestiona las vacantes en tiempo real. \\
+\hline
+Comisión de Matrícula / Departamentos Académicos & Área institucional &
+  Define la oferta habilitada, los turnos de acceso y los cupos
+  por sección antes de iniciar el proceso. \\
+\hline
+\end{tabular}
+\end{table}
+
+% ------------------------------------------------------------
+\subsection{Actividades}
+
+Las actividades son las acciones que se realizan durante la ejecución
+del subproceso, ordenadas secuencialmente.
+
+\begin{table}[H]
+\centering
+\caption{Actividades del Subproceso~2}
+\label{tab:actividades_sp2}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|c|p{8.5cm}|p{3.5cm}|}
+\hline
+\textbf{N°} & \textbf{Actividad} & \textbf{Responsable} \\
+\hline
+1 & Acceder a la Intranet DIRCE en el turno habilitado. & Estudiante \\
+\hline
+2 & Visualizar la oferta de cursos y secciones habilitadas para el ciclo. & Sistema (SIGA-ORCE) \\
+\hline
+3 & Armar y seleccionar cursos, secciones y horarios (horario tentativo). & Estudiante \\
+\hline
+4 & Validar restricciones de forma interactiva: créditos, cruces de
+    horario, pre-requisitos y disponibilidad de vacantes. & Sistema (SIGA-ORCE) \\
+\hline
+5 & Confirmar y enviar la propuesta de matrícula. & Estudiante \\
+\hline
+6 & Generar la Pre-Ficha de Matrícula y reservar vacantes temporalmente. & Sistema (SIGA-ORCE) \\
+\hline
+\end{tabular}
+\end{table}
+
+% ------------------------------------------------------------
+\subsection{Recursos}
+
+Los recursos son los medios necesarios para ejecutar el subproceso.
+
+\begin{table}[H]
+\centering
+\caption{Recursos del Subproceso~2}
+\label{tab:recursos_sp2}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{4cm}|p{9.5cm}|}
+\hline
+\textbf{Recurso} & \textbf{Descripción} \\
+\hline
+Intranet DIRCE &
+  Portal web institucional (\texttt{dirce.uni.edu.pe}); única vía de
+  acceso al proceso de selección de cursos. \\
+\hline
+Servidores SIGA-ORCE &
+  Infraestructura que procesa validaciones y gestiona el estado de
+  vacantes en tiempo real. \\
+\hline
+Malla curricular digital &
+  Catálogo de cursos con pre-requisitos, creditaje y secciones vigentes
+  para el ciclo académico en curso. \\
+\hline
+Credenciales institucionales &
+  Usuario y contraseña del estudiante para autenticarse en la intranet. \\
+\hline
+Reglamento RR-0570-2022 &
+  Documento normativo que establece el límite de créditos a matricular
+  según el promedio ponderado acumulado del estudiante. \\
+\hline
+\end{tabular}
+\end{table}
+
+% ------------------------------------------------------------
+\subsection{Reglas}
+
+Las reglas son las condiciones que deben cumplirse para que el
+subproceso se ejecute correctamente.
+
+\begin{table}[H]
+\centering
+\caption{Reglas de negocio del Subproceso~2}
+\label{tab:reglas_sp2}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|c|p{8cm}|p{3.3cm}|}
+\hline
+\textbf{ID} & \textbf{Regla} & \textbf{Fuente} \\
+\hline
+R1 & El estudiante solo puede acceder en el turno asignado por la DIRCE;
+     fuera de él, el portal bloquea el registro de la selección. &
+     Reglamento de Matrícula \\
+\hline
+R2 & El límite máximo de créditos a matricular depende del promedio
+     ponderado acumulado del estudiante (véase Tabla~\ref{tab:creditos_sp2}). &
+     RR-0570-2022 \\
+\hline
+R3 & El creditaje mínimo obligatorio por ciclo es de \textbf{12 créditos}. &
+     Reglamento de Matrícula \\
+\hline
+R4 & Los cursos de arrastre (desaprobados o no llevados del ciclo previo)
+     tienen prioridad en la selección. &
+     Reglamento académico \\
+\hline
+R5 & Los pre-requisitos son obligatorios; el sistema bloquea
+     automáticamente los cursos cuyos pre-requisitos no estén aprobados. &
+     SIGA-ORCE \\
+\hline
+R6 & Los cruces de horario en laboratorios están \textbf{prohibidos};
+     para cursos de teoría se toleran hasta \textbf{4 horas} de superposición. &
+     Reglamento de horarios \\
+\hline
+R7 & Si no hay vacantes disponibles en los cursos requeridos, el
+     estudiante debe solicitar rectificación de matrícula en el
+     subproceso SP3A. &
+     Proceso institucional \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Límite de créditos según promedio ponderado acumulado (RR-0570-2022)}
+\label{tab:creditos_sp2}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{6cm}|c|}
+\hline
+\textbf{Promedio ponderado acumulado} & \textbf{Créditos máximos} \\
+\hline
+Menor a 11            & 18 \\
+\hline
+De 11,00 a 12,99      & 20 \\
+\hline
+De 13,00 a 14,99      & 22 \\
+\hline
+De 15,00 a 16,99      & 24 \\
+\hline
+De 17,00 a más        & 26 \\
+\hline
+\end{tabular}
+\end{table}
+
+% ------------------------------------------------------------
+\subsection{Procedimientos del proceso}
+
+Los procedimientos establecen la secuencia ordenada de pasos para
+realizar las actividades del subproceso.
+
+\begin{enumerate}
+  \item \textbf{Habilitación del turno.} La DIRCE activa el acceso al
+        portal para el estudiante según el cronograma de turnos publicado
+        con anterioridad al inicio del periodo de matrícula.
+
+  \item \textbf{Autenticación.} El estudiante ingresa con sus credenciales
+        institucionales al portal \texttt{dirce.uni.edu.pe}.
+
+  \item \textbf{Visualización de la oferta.} El sistema muestra los cursos
+        disponibles para el ciclo, con sus secciones, horarios y número
+        de vacantes disponibles en tiempo real.
+
+  \item \textbf{Armado del horario tentativo.} El estudiante selecciona
+        los cursos y secciones que desea cursar, priorizando los cursos
+        de arrastre conforme al reglamento.
+
+  \item \textbf{Validación automática.} SIGA-ORCE comprueba en tiempo real
+        el cumplimiento de las reglas: (a)~límite de créditos según
+        promedio, (b)~cruces de horario, (c)~pre-requisitos aprobados y
+        (d)~disponibilidad de vacantes. Si alguna regla se incumple, el
+        sistema alerta al estudiante y bloquea la acción hasta que se
+        realice el ajuste correspondiente.
+
+  \item \textbf{Envío de propuesta.} Una vez validada la selección, el
+        estudiante confirma y hace clic en ``Registrar matrícula''.
+
+  \item \textbf{Generación de Pre-Ficha.} El sistema genera la
+        \textit{Pre-Ficha de Matrícula}, reserva temporalmente las
+        vacantes de los cursos seleccionados y la registra en SIGA-ORCE.
+
+  \item \textbf{Derivación al subproceso siguiente.} La Pre-Ficha de
+        Matrícula generada constituye la entrada formal del
+        Subproceso~3A: Pago y Formalización de la Matrícula. En caso de
+        que algún curso no cuente con vacantes disponibles, el estudiante
+        deberá gestionar una rectificación de matrícula a través del
+        mismo subproceso SP3A.
+\end{enumerate}
