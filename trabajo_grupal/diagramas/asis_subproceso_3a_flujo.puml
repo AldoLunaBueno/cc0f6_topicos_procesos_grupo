@@ -1,0 +1,82 @@
+@startdot asis_subproceso_3a_flujo
+digraph asis_subproceso_3a_flujo {
+  /* Diagrama de flujo AS IS - Subproceso 3.A: Verificación y Control de Reglas Académicas.
+     Fuente editable (PlantUML/DOT). Se renderiza por plantuml -tpng.
+     La orientación horizontal usa el motor DOT (rankdir=LR). */
+  rankdir=LR;
+  bgcolor="#FFFFFF";
+  nodesep=0.28;
+  ranksep=0.42;
+  dpi=120;
+
+  label="Proceso AS IS - Subproceso 3.A: Verificación y Control de Reglas Académicas (flujo)";
+  labelloc=t; fontsize=15; fontname="Helvetica"; labeljust=c;
+
+  node [fontname="Arial", fontsize=11, fontcolor="#333333",
+        shape=box, style="rounded,filled", fillcolor="#FFFFFF",
+        color="#333333", margin="0.09,0.045"];
+  edge [color="#333333", fontname="Arial", fontsize=10, fontcolor="#333333", arrowsize=0.7];
+
+  inicio [shape=oval, style=filled, fillcolor="#4472C4", fontcolor="#FFFFFF", label="Inicio:\nPre-Ficha Registrada\n(del Subproceso 2)"];
+
+  audit_auto [label="Auditoría automática en SIGA-ORCE:\nvalida prerrequisitos, topes de crédito,\ncruces en prácticas y Grupo Cero"];
+
+  d_reglas [shape=diamond, label="¿Cumple todas las\nreglas automáticas?"];
+
+  preficha_conforme [label="Pre-Ficha en condición\nAprobada preliminar"];
+
+  d_rectif [shape=diamond, label="¿Estudiante requiere\nrectificación?\n(vacantes o cruces)"];
+
+  solicitud [label="Estudiante envía solicitud\nde rectificación en portal\n(agregar, retirar o cambiar)"];
+
+  eval_escuela [label="Dirección de Escuela y Comisión\nevalúan solicitud y cruces teóricos\n(hasta 4 h permitidas)"];
+
+  d_aprob [shape=diamond, label="¿Solicitud\naprobada?"];
+
+  actualiza_siga [label="Dirección de Escuela actualiza\ncursos en el SIGA\n(Pre-Ficha Subsanada)"];
+
+  d_plazo [shape=diamond, label="¿Observación subsanable\ndentro del plazo?"];
+
+  libera_cupos [label="SIGA anula reserva temporal\ny libera las vacantes", fillcolor="#FFF2CC"];
+
+  fin_anormal [shape=oval, style=filled, fillcolor="#C00000", fontcolor="#FFFFFF", label="Fin anormal:\nReserva anulada\n(sin matrícula)"];
+
+  emite_final [label="Emisión de la Pre-Ficha\nAprobada o Subsanada", fillcolor="#EDEDED"];
+
+  fin [shape=oval, style=filled, fillcolor="#4472C4", fontcolor="#FFFFFF", label="Fin:\nPre-Ficha validada\n(al Subproceso 3.B)"];
+
+  nota_tiempo [shape=note, style=filled, fillcolor="#FFF2CC", color="#8C7A2B", label="Cuello de botella 2026-2:\nDemora de 48 a 72 horas\npor acumulación masiva de pedidos"];
+
+  nota_manual [shape=note, style=filled, fillcolor="#FFF2CC", color="#8C7A2B", label="Hallazgo de campo:\nRevisión manual obligatoria para\nreincorporados y convalidados\n(el SIGA no actualiza reglas auto)"];
+
+  nota_arrastre [shape=note, style=filled, fillcolor="#FFF2CC", color="#8C7A2B", label="Efecto de arrastre:\nRetrasa cierre oficial del 3.B\ny genera asistencia a clase\nsin figurar en padrones"];
+
+  /* Conexiones del flujo */
+  inicio -> audit_auto;
+  audit_auto -> d_reglas;
+
+  d_reglas -> preficha_conforme [label="sí"];
+  d_reglas -> d_rectif [label="no (observada)"];
+
+  preficha_conforme -> d_rectif;
+  d_rectif -> emite_final [label="no"];
+  d_rectif -> solicitud [label="sí"];
+
+  solicitud -> eval_escuela;
+  eval_escuela -> d_aprob;
+
+  d_aprob -> actualiza_siga [label="sí"];
+  actualiza_siga -> emite_final;
+
+  d_aprob -> d_plazo [label="no"];
+  d_plazo -> solicitud [label="sí", constraint=false, style=dashed];
+  d_plazo -> libera_cupos [label="no"];
+  libera_cupos -> fin_anormal;
+
+  emite_final -> fin;
+
+  eval_escuela -> nota_tiempo [style=dashed, arrowhead=none];
+  audit_auto -> nota_manual [style=dashed, arrowhead=none];
+  emite_final -> nota_arrastre [style=dashed, arrowhead=none];
+}
+@enddot

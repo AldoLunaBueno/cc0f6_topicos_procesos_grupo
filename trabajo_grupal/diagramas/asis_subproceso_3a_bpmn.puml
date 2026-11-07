@@ -1,0 +1,89 @@
+@startuml asis_subproceso_3a_bpmn
+title Modelo BPMN AS IS - Subproceso 3.A: Verificación y Control de Reglas Académicas (carriles por actor)
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam ArrowColor #333333
+skinparam ActivityBorderColor #333333
+skinparam ConditionEndStyle diamond
+skinparam dpi 100
+skinparam ActivityFontSize 12
+skinparam NoteFontSize 11
+
+|Sistema SIGA-ORCE / Intranet DIRCE|
+start
+:Recibe la Pre-Ficha de Matrícula Registrada
+(proveniente del Subproceso 2);
+:Audita automáticamente la carga seleccionada:
+1. Malla curricular y prerrequisitos
+2. Límite máximo de créditos autorizados
+3. Incompatibilidad de horarios en prácticas
+4. Inscripción obligatoria de cursos Grupo Cero;
+note right
+Hallazgo 2026-2:
+Para alumnos reincorporados o convalidados
+el sistema no valida reglas en automático;
+exige revisión manual caso por caso
+end note
+
+if (¿Pre-Ficha cumple todas las reglas automáticas?) then (sí)
+  :Asigna condición "Aprobada preliminar";
+else (no)
+  :Asigna condición "Observada" y
+  notifica al alumno en la Intranet;
+endif
+
+|Estudiante Regular|
+if (¿Requiere rectificación por cupos, cruces u observaciones?) then (sí)
+  :Envía solicitud de rectificación en el portal
+  (agregar, retirar o cambiar de sección);
+  
+  |Dirección de Escuela Profesional|
+  :Recepciona solicitud y revisa
+  expediente académico e historial;
+  note right
+  Cuello de botella reportado:
+  Demora de 48 a 72 horas por
+  acumulación masiva de pedidos
+  end note
+
+  if (¿Caso requiere evaluar cruce teórico o cupos?) then (sí)
+    |Comisión de Matrícula de la Facultad|
+    :Evalúa cruce teórico (hasta 4 h permitidas)
+    y gestiona ampliación de cupos;
+    |Dirección de Escuela Profesional|
+  else (no)
+  endif
+
+  if (¿Solicitud de rectificación procedente?) then (sí)
+    :Aprueba solicitud y modifica asignaturas
+    manualmente en el SIGA;
+    |Sistema SIGA-ORCE / Intranet DIRCE|
+    :Genera Pre-Ficha Subsanada;
+  else (no)
+    :Rechaza solicitud y notifica al alumno;
+    |Sistema SIGA-ORCE / Intranet DIRCE|
+    if (¿Inconsistencia subsanada dentro del plazo?) then (no)
+      :Anula reserva temporal de vacantes;
+      :Fin anormal: Matrícula no completada;
+      stop
+    else (sí)
+      :Mantiene la última propuesta válida;
+    endif
+  endif
+else (no)
+endif
+
+|Sistema SIGA-ORCE / Intranet DIRCE|
+:Emite Pre-Ficha Aprobada o Subsanada;
+note right
+Efecto de arrastre:
+Demoras en aprobación retrasan
+el cierre final en el Subproceso 3.B
+end note
+
+|Estudiante Regular|
+:Visualiza estado final de Pre-Ficha en el portal;
+:Fin: Pre-Ficha validada administrativamente
+(da inicio al Subproceso 3.B: Confirmación y Registro Oficial);
+stop
+@enduml

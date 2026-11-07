@@ -1,0 +1,14 @@
+\subsubsection{Subproceso 3.A: Verificaci\'on y Control de Reglas Acad\'emicas}
+
+La Figura~\ref{fig:asis_3a_flujo} representa la secuencia horizontal de control y decisi\'on del proceso actual. El subproceso inicia con la Pre-Ficha de Matr\'icula Registrada emitida por el Subproceso~2. Inmediatamente, el sistema SIGA-ORCE realiza una auditor\'ia autom\'atica para verificar el cumplimiento de prerrequisitos, el l\'imite de cr\'editos autorizados, la prohibici\'on total de cruces de horario en sesiones de pr\'actica o laboratorio, y la inscripci\'on forzosa de asignaturas desaprobadas para estudiantes en riesgo acad\'emico (Grupo Cero, Arts.~8\textdegree{}, 48\textdegree{} y Estatuto UNI Art.~253\textdegree{})~\cite{reglamento2022,ley30220}. Si la propuesta no presenta inconsistencias, queda aprobada preliminarmente.
+
+En caso de registrarse observaciones, o si el alumno experiment\'o falta de vacantes o cruces inevitables, se habilita el tr\'amite de rectificaci\'on mediante formulario digital en el portal. La Direcci\'on de Escuela, en coordinaci\'on con la Comisi\'on de Matr\'icula, eval\'ua los pedidos, autoriza cruces te\'oricos excepcionales de hasta cuatro horas e incorpora ampliaciones de vacantes cuando es factible. Si la solicitud procede, la Escuela modifica la carga manualmente en el SIGA, generando la Pre-Ficha Subsanada. Por el contrario, si la observaci\'on no es corregida por el estudiante dentro del plazo fijado, el sistema anula la reserva temporal y libera las vacantes. El flujo concluye con la emisi\'on de la Pre-Ficha Aprobada o Subsanada, la cual pasa al Subproceso~3.B para su registro legal definitivo.
+
+El diagrama incorpora los problemas documentados durante el levantamiento del periodo 2026-2. Destaca el cuello de botella generado por la acumulaci\'on masiva de rectificaciones, con tiempos de respuesta que oscilan entre 48 y 72 horas. Asimismo, resalta la obligatoriedad de revisar de manera manual los casos de alumnos reincorporados o con convalidaciones previas, ya que el SIGA no actualiza autom\'aticamente sus matrices de compatibilidad. Esta demora acumulada genera un efecto de arrastre que posterga el cierre formal del proceso en el Subproceso~3.B.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{asis_subproceso_3a_flujo.png}
+    \caption{Diagrama de flujo (AS IS) del Subproceso 3.A}
+    \label{fig:asis_3a_flujo}
+\end{figure}

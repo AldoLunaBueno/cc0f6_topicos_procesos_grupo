@@ -1,0 +1,12 @@
+\subsubsection{Subproceso 3.A: Verificaci\'on y Control de Reglas Acad\'emicas}
+
+El modelo BPMN del Subproceso 3.A reparte las responsabilidades en cuatro carriles verticales: el Sistema SIGA-ORCE / Intranet DIRCE, el Estudiante Regular, la Direcci\'on de Escuela Profesional y la Comisi\'on de Matr\'icula de la Facultad. El sistema central concentra el control autom\'atico inicial, contrastando la Pre-Ficha con la malla curricular y los topes de creditaje. El estudiante gestiona sus solicitudes de rectificaci\'on (agregar, retirar o cambiar asignaturas de secci\'on) en caso de presentar cruces o cupos agotados. La Direcci\'on de Escuela eval\'ua los expedientes acad\'emicos y ejecuta las correcciones autorizadas en la base de datos. La Comisi\'on de Matr\'icula brinda soporte colegiado en la autorizaci\'on de cruces te\'oricos y en la gesti\'on de cupos adicionales con los Departamentos Acad\'emicos.
+
+La representaci\'on vertical detalla las compuertas de decisi\'on que definen el destino de la Pre-Ficha. Si el estudiante no presenta observaciones y no solicita cambios, la ficha se valida sin tr\'amite adicional. De requerir rectificaci\'on, el proceso entra al canal evaluador de la Escuela y la Comisi\'on; la aprobaci\'on desemboca en la Pre-Ficha Subsanada, mientras que el rechazo obliga al estudiante a mantener una opci\'on v\'alida. Si una observaci\'on cr\'itica permanece sin subsanar al culminar el plazo normado, el sistema anula la reserva temporal y libera las vacantes, originando un evento de fin anormal sin matr\'icula. El proceso regular finaliza con la Pre-Ficha confirmada para su traspaso al Subproceso~3.B.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{asis_subproceso_3a_bpmn.png}
+    \caption{Modelo BPMN vertical (AS IS) del Subproceso 3.A}
+    \label{fig:asis_3a_bpmn}
+\end{figure}
