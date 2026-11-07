@@ -27,7 +27,7 @@ digraph {
   dele [shape=diamond, label="¿Electivas con\nmenos de 6\ninscritos?"];
   riesgo [label="Electivas en riesgo\nde eliminación"];
 
-  cierre [label="La Facultad comunica el\ncierre y remite el archivo\ndigital de consolidación\n(Art. 78°)"];
+  cierre [label="La Facultad comunica el\ncierre y envía el archivo\ndigital de consolidación\n(Art. 78°)"];
   dext [shape=diamond, label="¿Modificación\nextemporánea\nsolicitada?"];
   solici [label="La Facultad solicita la\nmodificación a la DIRCE\n(sin acceso directo de edición)"];
   reemite [label="La DIRCE procesa la\nsolicitud y actualiza el registro"];

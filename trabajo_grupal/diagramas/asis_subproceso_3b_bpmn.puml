@@ -35,7 +35,7 @@ if (¿Electivas con menos de 6 inscritos?) then (sí)
   de eliminación (Art. 75°);
 else (no)
 endif
-:Remite el archivo digital de consolidación
+:Envía el archivo digital de consolidación
 y comunica el cierre a
 la DIRCE (Art. 78°);
 if (¿Modificación extemporánea solicitada?) then (sí)
@@ -66,11 +66,11 @@ primer día hábil de la segunda
 semana (Art. 78°);
 |Organismos Nacionales\n(SUNEDU y MINEDU)|
 :Recibe y valida el padrón nacional
-de matriculados remitido por la DIRCE
+de matriculados enviado por la DIRCE
 (Art. 79°);
 |Dirección de Registro\nCentral y Estadística (DIRCE)|
-:Pone a disposición de las Facultades el
-registro, las Boletas y el SIGA actualizado
+:Entrega a las Facultades el registro,
+las Boletas y el SIGA actualizado
 en hasta 10 días hábiles tras el cierre
 (Art. 80°);
 :Matrícula oficializada;
