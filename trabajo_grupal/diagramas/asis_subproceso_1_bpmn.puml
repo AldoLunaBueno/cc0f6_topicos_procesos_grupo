@@ -1,0 +1,98 @@
+@startuml asis_subproceso_1_bpmn
+title Modelo BPMN AS IS - Subproceso 1: Acreditación y Pre-requisitos (carriles por actor)
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam ArrowColor #333333
+skinparam ActivityBorderColor #333333
+skinparam ConditionEndStyle diamond
+skinparam dpi 100
+skinparam ActivityFontSize 12
+skinparam NoteFontSize 11
+
+|Estudiante Regular|
+start
+:Genera orden de pago de autoseguro en Intralu
+y cancela en Caja UNI o entidad bancaria
+(RR-2461-2023, nums. 6.1.1 y 6.2);
+:Verifica y subsana deudas de libros o
+materiales en su Facultad (TUPA Nota 1);
+
+|Caja UNI y Dependencias de Facultad|
+:Registra el pago del autoseguro estudiantil
+y reporta la condición de adeudos;
+
+|Comisión de Matrícula, Escuela y Tutores|
+:Cierra actas de notas del semestre anterior
+sin reclamos pendientes (RR-0570-2022, Art. 6°);
+note right: Al menos 3 días hábiles antes\nde la matrícula regular
+
+if (¿Estudiante en riesgo académico (desaprobó >= 2 veces)?) then (sí)
+  :Brinda consejería previa obligatoria y autoriza
+  la activación de código en el sistema (Arts. 8° y 48°);
+else (no)
+endif
+
+if (¿Estudiante próximo a egresar con <= 30 créditos?) then (sí)
+  :Remite nómina de alumnos egresantes para
+  turno preferencial de promoción (Art. 42°);
+else (no)
+endif
+
+if (¿Cambio de plan o convalidación solicitada?) then (sí)
+  :Envía expediente con resoluciones y fichas
+  a la DIRCE (Arts. 17° y 43°);
+  |Dirección de Registro Central y Estadística (DIRCE / SIGA)|
+  :Procesa y asienta convalidaciones y cambios
+  de plan manualmente en el SIGA;
+  note right
+  Punto crítico reportado:
+  Trámite asíncrono manual genera demoras
+  y puede dejar asignaturas sin convalidar
+  end note
+else (no)
+endif
+
+|Dirección de Registro Central y Estadística (DIRCE / SIGA)|
+:Cruza recaudación de pagos y verifica
+los reportes de adeudos (TUPA PA5400954D);
+note right
+Hallazgo del periodo 2026-2:
+El sistema solo validó el autoseguro;
+no aplicó el bloqueo por adeudos de Facultad
+end note
+
+if (¿Pago de autoseguro registrado?) then (no)
+  :Mantiene ficha bloqueada para matrícula;
+  stop
+else (sí)
+  :Calcula promedio ponderado de los dos
+  últimos semestres regulares (Art. 9°, inc. a);
+  :Asigna el límite máximo de créditos autorizados
+  y determina orden de mérito;
+  :Asigna grupo de atención (Riesgo, Promoción o
+  Grupos regulares por promedio ponderado);
+  :Genera Ficha de Matrícula individualizada
+  según el plan de estudios y avance curricular;
+endif
+
+|Portal Intranet DIRCE / Intralu|
+:Publica cronograma de turnos y muestra en pantalla
+los cuatro controles de estado (Turno, Bloqueos,
+Adeudos y Pagos);
+note right
+Hallazgo de campo 2026-2:
+Caída de portales desde las 11:00 p.m.
+(registrado fuera de matrícula;
+durante matrícula ocurren caídas por saturación)
+end note
+
+:Habilita el acceso a la Ficha de Matrícula
+para cuando inicie el turno asignado;
+
+|Estudiante Regular|
+:Visualiza ficha personalizada con requisitos
+en verde y verifica fecha y hora de atención;
+:Fin: Estudiante acreditado y habilitado
+(da inicio al Subproceso 2: Selección y Registro de Cursos);
+stop
+@enduml

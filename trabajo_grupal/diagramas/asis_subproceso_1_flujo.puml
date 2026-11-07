@@ -1,0 +1,88 @@
+@startdot asis_subproceso_1_flujo
+digraph asis_subproceso_1_flujo {
+  /* Diagrama de flujo AS IS - Subproceso 1: Acreditación y Pre-requisitos.
+     Fuente editable (PlantUML/DOT). Se renderiza por plantuml -tpng.
+     La orientación horizontal usa el motor DOT (rankdir=LR). */
+  rankdir=LR;
+  bgcolor="#FFFFFF";
+  nodesep=0.28;
+  ranksep=0.42;
+  dpi=120;
+
+  label="Proceso AS IS - Subproceso 1: Acreditación y Pre-requisitos (flujo)";
+  labelloc=t; fontsize=15; fontname="Helvetica"; labeljust=c;
+
+  node [fontname="Arial", fontsize=11, fontcolor="#333333",
+        shape=box, style="rounded,filled", fillcolor="#FFFFFF",
+        color="#333333", margin="0.09,0.045"];
+  edge [color="#333333", fontname="Arial", fontsize=10, fontcolor="#333333", arrowsize=0.7];
+
+  inicio [shape=oval, style=filled, fillcolor="#4472C4", fontcolor="#FFFFFF", label="Inicio"];
+
+  cierre_notas [label="Facultades cierran actas\nde notas sin reclamos pendientes\n(RR-0570-2022, Art. 6°)"];
+
+  d_notas [shape=diamond, label="¿Actas cerradas\nsin reclamos?"];
+  retraso_notas [label="Retraso en cálculo de\npromedios y publicación\nde turnos", fillcolor="#FFF2CC"];
+
+  pago_seguro [label="Estudiante cancela autoseguro\nmédico en Caja UNI / bancos\n(RR-2461-2023, nums. 6.1.1 y 6.2)"];
+
+  d_riesgo [shape=diamond, label="¿Cursos desaprobados\n>= 2 veces?"];
+  tutoria [label="Consejería previa obligatoria\ny tutor autoriza activación\nde código (Arts. 8° y 48°)"];
+
+  egresante [label="Escuela remite nómina de egresantes\n(<= 30 créd.) para turno preferencial\n(Art. 42°) y convalidaciones\n(Arts. 17° y 43°)"];
+
+  d_conval [shape=diamond, label="¿Convalidación o\ncambio de plan\nen trámite?"];
+  carga_manual [label="DIRCE recibe expediente físico\ny registra convalidación en SIGA\n(trámite manual y asíncrono)"];
+
+  cruce_siga [label="El SIGA-ORCE cruza pagos\nde recaudación y adeudos\nreportados por Facultad\n(TUPA PA5400954D)"];
+
+  d_pago [shape=diamond, label="¿Autoseguro\npagado?"];
+  bloqueo [label="Acceso a matrícula\nbloqueado en sistema", fillcolor="#FFF2CC"];
+
+  calculo_siga [label="El SIGA calcula promedio de los 2\núltimos semestres, define tope de créditos\ny orden de mérito (Art. 9°, inc. a)"];
+
+  asigna_turnos [label="Asignación de grupos y turnos:\n1. Riesgo académico | 2. Promoción\n3. Grupos regulares por promedio"];
+
+  habilita_portal [label="Intranet DIRCE muestra controles de estado,\npublica cronograma y habilita Ficha\nindividual para el inicio de turno"];
+
+  fin [shape=oval, style=filled, fillcolor="#4472C4", fontcolor="#FFFFFF", label="Fin:\nEstudiante habilitado\ny con turno asignado\n(al Subproceso 2)"];
+
+  nota_adeudos [shape=note, style=filled, fillcolor="#FFF2CC", color="#8C7A2B", label="Hallazgo de campo 2026-2:\nEl sistema solo validó autoseguro;\nno bloqueó por adeudos con Facultad\n(inobservancia de la regla TUPA)"];
+
+  nota_caida [shape=note, style=filled, fillcolor="#FFF2CC", color="#8C7A2B", label="Hallazgo de campo 2026-2:\nCaída de portales a las 11 p.m.\n(registrado fuera de matrícula;\nen matrícula ocurren caídas por saturación)"];
+
+  nota_conval [shape=note, style=filled, fillcolor="#FFF2CC", color="#8C7A2B", label="Punto crítico:\nFichas se generan con base congelada;\nconvalidaciones tardías impiden matricular\nen el turno asignado"];
+
+  /* Estructura de filas y conexiones */
+  inicio -> cierre_notas;
+  cierre_notas -> d_notas;
+  d_notas -> retraso_notas [label="no"];
+  retraso_notas -> d_notas [style=dashed, constraint=false, label="espera cierre"];
+  d_notas -> cruce_siga [label="sí"];
+
+  inicio -> pago_seguro;
+  pago_seguro -> d_riesgo;
+  d_riesgo -> tutoria [label="sí"];
+  tutoria -> cruce_siga;
+  d_riesgo -> cruce_siga [label="no"];
+
+  inicio -> egresante;
+  egresante -> d_conval;
+  d_conval -> carga_manual [label="sí"];
+  carga_manual -> cruce_siga [label="registro actualizado"];
+  d_conval -> cruce_siga [label="no"];
+
+  cruce_siga -> d_pago;
+  d_pago -> bloqueo [label="no"];
+  bloqueo -> pago_seguro [style=dashed, constraint=false, label="regulariza pago"];
+  d_pago -> calculo_siga [label="sí"];
+
+  calculo_siga -> asigna_turnos;
+  asigna_turnos -> habilita_portal;
+  habilita_portal -> fin;
+
+  cruce_siga -> nota_adeudos [style=dashed, arrowhead=none];
+  carga_manual -> nota_conval [style=dashed, arrowhead=none];
+  habilita_portal -> nota_caida [style=dashed, arrowhead=none];
+}
+@enddot

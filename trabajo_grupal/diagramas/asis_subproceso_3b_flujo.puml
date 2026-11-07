@@ -1,9 +1,9 @@
 @startdot asis_subproceso_3b_flujo
-/' Diagrama de flujo AS IS - Subproceso 3.B: Confirmación y Registro Oficial.
-   Fuente editable (PlantUML/DOT). Se renderiza por plantuml -tpng.
-   La orientación horizontal usa el motor DOT (rankdir=LR) del mismo binario
-   de PlantUML; el motor de actividades no admite dirección horizontal. '/
-digraph {
+digraph asis_subproceso_3b_flujo {
+  /* Diagrama de flujo AS IS - Subproceso 3.B: Confirmación y Registro Oficial.
+     Fuente editable (PlantUML/DOT). Se renderiza por plantuml -tpng.
+     La orientación horizontal usa el motor DOT (rankdir=LR) del mismo binario
+     de PlantUML; el motor de actividades no admite dirección horizontal. */
   rankdir=LR;
   bgcolor="#FFFFFF";
   nodesep=0.28;
@@ -44,7 +44,7 @@ digraph {
   nota_plazo [shape=note, style=filled, fillcolor="#FFF2CC", color="#8C7A2B", label="Plazo legal:\n20 días desde la\nmatrícula regular\n(Art. 79°)"];
   nota_acceso [shape=note, style=filled, fillcolor="#FFF2CC", color="#8C7A2B", label="Hallazgo del registro de campo:\nmodificación extemporánea solo\npor solicitud manual a la DIRCE\n(periodo 2026-2)"];
 
-  /' Fila 1: habilitación, registro y semana de verificación '/
+  /* Fila 1: habilitación, registro y semana de verificación */
   {rank=same; d77; autoriz;}
   {rank=same; dele; riesgo;}
   inicio -> preficha;
@@ -56,7 +56,7 @@ digraph {
   d77 -> dele [label="no"];
   dele -> riesgo [label="sí"];
 
-  /' Fila 2: cierre y modificaciones extemporáneas '/
+  /* Fila 2: cierre y modificaciones extemporáneas */
   {rank=same; solici; reemite; nota_acceso;}
   dele -> cierre [label="no", constraint=false];
   riesgo -> cierre [constraint=false];
@@ -65,7 +65,7 @@ digraph {
   solici -> reemite;
   reemite -> cierre [constraint=false, style=dashed, label="registro actualizado"];
 
-  /' Fila 3: visado y despliegue del registro oficial '/
+  /* Fila 3: visado y despliegue del registro oficial */
   {rank=same; dvis; obsrev;}
   dext -> visado [label="no", constraint=false];
   visado -> dvis;

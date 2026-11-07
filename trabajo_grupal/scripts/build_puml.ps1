@@ -2,8 +2,8 @@ param(
     [string]$BaseDir = "."
 )
 
-$diagramsDir = Join-Path $BaseDir "diagramas"
-$imagesDir = Join-Path $BaseDir "images"
+$diagramsDir = [System.IO.Path]::GetFullPath((Join-Path $BaseDir "diagramas"))
+$imagesDir = [System.IO.Path]::GetFullPath((Join-Path $BaseDir "images"))
 
 if (-not (Test-Path $diagramsDir)) {
     exit 0
