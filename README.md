@@ -18,7 +18,7 @@ Repositorio del informe grupal de análisis y rediseño de procesos mediante BPM
 
 | Documento | Archivo PDF | Última actualización | Commit | Descarga Directa |
 | :--- | :--- | :--- | :--- | :--- |
-| **Trabajo Grupal** | `trabajo_grupal.pdf` | 2026-11-07 | `2c8af1a` | [📄 **Ver / Descargar PDF**](https://github.com/AldoLunaBueno/cc0f6_topicos_procesos_grupo/releases/download/latest/trabajo_grupal.pdf) |
+| **Trabajo Grupal** | `trabajo_grupal.pdf` | 2026-11-07 | `4bd413d` | [📄 **Ver / Descargar PDF**](https://github.com/AldoLunaBueno/cc0f6_topicos_procesos_grupo/releases/download/latest/trabajo_grupal.pdf) |
 <!-- LATEST_PDFS_END -->
 
 ---
