@@ -1,48 +1,119 @@
+% !TEX root = ../main.tex
 % ==============================================================================
-% Diagrama: Mapa de Procesos Institucional de la UNI (Versión Compacta y Estable)
+% Diagrama: Mapa de Procesos Institucional de la UNI (Diseño Dinámico y Modular)
 % ==============================================================================
+\pgfdeclarelayer{fondoInterno}
+
+% Parámetros configurables de diseño
+\providecommand{\padBandaX}{0.40cm}      % Margen horizontal de las bandas respecto al contenido
+\providecommand{\padBandaY}{0.25cm}      % Margen vertical interno de cada banda (arriba y abajo)
+\providecommand{\padSubX}{\padBandaX}    % Margen horizontal de bandaSub (por defecto hereda \padBandaX)
+\providecommand{\padSubY}{\padBandaY}    % Margen vertical de bandaSub (por defecto hereda \padBandaY)
+\providecommand{\sepBandas}{0.55cm}      % Separación vertical exterior entre bandas
+\providecommand{\anchoFlanco}{1.80cm}    % Grosor horizontal de las barras laterales
+\providecommand{\sepFlanco}{0.50cm}      % Separación horizontal entre bandas y flancos laterales
+\providecommand{\padTextoFlanco}{0.55cm} % Margen interno para el ajuste del texto vertical
+
 \tikzset{
+    pad x/.store in=\padActualX,
+    pad y/.store in=\padActualY,
+    pad x=\padBandaX,
+    pad y=\padBandaY,
+    extra sep fila/.store in=\extraSepFila,
+    extra sep fila=0pt,
+    envolvente/.style={inner sep=0pt, outer sep=0pt, minimum size=0pt, fit={#1}},
     cajaBase/.style={
         rectangle, rounded corners=3pt, thick, minimum height=1.15cm,
-        align=center, font=\scriptsize\bfseries\sffamily
+        inner xsep=3.5pt, align=center, font=\scriptsize\bfseries\sffamily
     },
     % #1: color | #2: ancho | #3: opciones extra
     caja/.style n args={3}{cajaBase, draw=#1!80!black, fill=#1!8, text width=#2, #3},
     % #1: color | #2: grosor
     flecha/.style 2 args={->, line width=#2, draw=#1!75!black},
+    flechaFlujo/.style={flecha={teal}{3pt}, shorten <=2pt, shorten >=2pt},
+    % Estilos de contenedores de fondo y cabeceras
+    banda/.style={rectangle, rounded corners=5pt, fill=#1!3, draw=#1!45!black, thick, inner sep=0pt},
+    tituloBanda/.style={
+        fill=#1!75!black, text=white, font=\bfseries\footnotesize\sffamily,
+        rounded corners=2pt, inner xsep=6pt, inner ysep=3pt, outer sep=0pt
+    },
+    % Estilo de flancos laterales
+    flanco/.style={
+        cajaBase, rounded corners=4pt, draw=black!70, fill=gray!18,
+        line width=1.1pt, minimum width=\anchoFlanco
+    },
     % Estilos puntuales por ID (activados automáticamente con /.try)
     mis2/.style={fill=teal!22, draw=teal!95!black},
-    bandaSub/.style={densely dashed, line width=1.1pt}
+    bandaSub/.style={densely dashed, line width=1.1pt, pad x=\padSubX, pad y=\padSubY},
+    filaSop/.style={extra sep fila=\padSubY}
 }
 
-% #1: args de flecha (opc) | #2: args de caja | #3: sep | #4: coord | #5: lista
+\providecommand{\extraerAncho}[3]{#2}
+
+% #1: args de flecha (opc) | #2: id de fila | #3: args de caja | #4: sep | #5: lista
 \providecommand{\filaCajas}[5][]{%
-    \foreach \id/\texto [count=\i, remember=\id as \prev] in {#5} {
-        \tikzset{nodoActual/.style={caja=#2, \id/.try}}
-        \ifnum\i=1
-            \node[nodoActual] (\id) at (#4) {\texto};
-        \else
-            \node[nodoActual, right=#3 of \prev] (\id) {\texto};
-            \if\relax\detokenize{#1}\relax\else
-                \draw[flecha=#1] (\prev) -- (\id);
+    \foreach \item [count=\n] in {#5} {\xdef\numCajas{\n}}%
+    \pgfmathsetmacro{\xIni}{-0.5 * (\numCajas - 1) * (\extraerAncho#3 + 7.8pt + #4)}%
+    \begin{scope}[local bounding box=#2, #2/.try]
+        \pgfmathsetlengthmacro{\saltoY}{\sepBandas + 2*\padBandaY + \extraSepFila + 1em + 6pt}%
+        \foreach \id/\texto [count=\idx, remember=\id as \prev] in {#5} {
+            \tikzset{nodoActual/.style={caja=#3, \id/.try}}
+            \ifnum\idx=1
+                \ifx\filaAnterior\empty
+                    \node[nodoActual, anchor=north] (\id) at (\xIni pt, 0) {\texto};
+                \else
+                    \node[nodoActual, anchor=north] (\id) at ([xshift=\xIni pt, yshift=-\saltoY] 0,0 |- \filaAnterior.south) {\texto};
+                \fi
+            \else
+                \node[nodoActual, right=#4 of \prev] (\id) {\texto};
+                \if\relax\detokenize{#1}\relax\else
+                    \draw[flecha=#1] (\prev) -- (\id);
+                \fi
             \fi
-        \fi
-    }%
+        }%
+    \end{scope}%
+    \gdef\filaAnterior{#2}%
+}
+
+% #1: capa (opc) | #2: id | #3: color | #4: nodos contenido | #5: ref horizontal | #6: título
+\providecommand{\dibujarBanda}[6][background]{%
+    \begin{scope}[#2/.try]
+        \node[envolvente={#4}] (#2-cont) {};
+        \node[tituloBanda=#3, anchor=south west] (#2-tit)
+            at ([xshift=-\padActualX, yshift=\padActualY] #5.west |- #2-cont.north) {#6};
+        \begin{pgfonlayer}{#1}
+            \node[banda=#3, #2/.try,
+                  fit={(#2-tit)([xshift=\padActualX, yshift=-\padActualY] #5.east |- #2-cont.south)}] (#2) {};
+        \end{pgfonlayer}%
+    \end{scope}%
+}
+
+% #1: lado (left/right) | #2: id | #3: ángulo | #4: título | #5: subtítulo
+\providecommand{\dibujarFlanco}[5]{%
+    \path let \p1 = ($(bloqueBandas.north) - (bloqueBandas.south)$),
+              \n1 = {\y1 - 2*\padTextoFlanco} in
+        node[flanco, minimum height=\y1, #1=\sepFlanco of bloqueBandas] (#2) {%
+            \rotatebox{#3}{\parbox{\n1}{%
+                \centering\bfseries\small #4\\[0.1cm]\footnotesize\normalfont #5%
+            }}%
+        };
 }
 
 \begin{figure}[H]
 \centering
 \resizebox{\linewidth}{!}{%
 \begin{tikzpicture}[>=Latex, font=\sffamily]
+    \pgfsetlayers{background,fondoInterno,main}
+    \gdef\filaAnterior{}
 
-    % 1. FILAS DE PROCESOS (Estratégicos, Misionales, Subprocesos y Soporte)
-    \filaCajas{{blue}{4.3cm}{font=\small\bfseries\sffamily}}{0.75cm}{-0.2, 7.6}{
+    % 1. FILAS DE PROCESOS (Centradas y apiladas automáticamente)
+    \filaCajas{filaEst}{{blue}{4.3cm}{font=\small\bfseries\sffamily}}{0.75cm}{
         est1/{Planeamiento Institucional\\y Presupuesto},
         est2/{Gestión de la Calidad,\\Acreditación y Mejora},
         est3/{Dirección Universitaria\\y Cooperación Técnica}
     }
 
-    \filaCajas[{teal}{1.4pt}]{{teal}{2.7cm}{}}{0.50cm}{-1.8, 4.8}{
+    \filaCajas[{teal}{1.4pt}]{filaMis}{{teal}{2.7cm}{}}{0.50cm}{
         mis1/{Admisión\\e Ingreso},
         mis2/{Formación Integral\\(Pregrado y Posgrado)},
         mis3/{Investigación,\\Desarrollo e Innovación},
@@ -50,45 +121,49 @@
         mis5/{Graduación\\y Titulación}
     }
 
-    \filaCajas[{red}{1.5pt}]{{red}{3.2cm}{fill=white, very thick, font=\scriptsize\sffamily}}{0.30cm}{-0.4, 2.15}{
+    \filaCajas[{red}{1.5pt}]{filaSub}{{red}{3.2cm}{fill=white, very thick, font=\scriptsize\sffamily}}{0.30cm}{
         sub1/{\textbf{Subproceso 1}\\Acreditación y\\Pre-requisitos},
         sub2/{\textbf{Subproceso 2}\\Selección y\\Registro de Cursos},
         sub3a/{\textbf{Subproceso 3.A}\\Verificación de\\Reglas Académicas},
         sub3b/{\textbf{Subproceso 3.B}\\Confirmación y\\Registro Transaccional}
     }
 
-    \draw[flecha={red}{1.2pt}, dashed] (mis2.south) -- (mis2.south |- 0, 3.35);
-
-    \filaCajas{{purple}{3.3cm}{}}{0.35cm}{-0.7, -0.5}{
+    \filaCajas{filaSop}{{purple}{3.3cm}{}}{0.35cm}{
         sop1/{Registros Académicos\\y TI (DIRCE / Intralu)},
         sop2/{Bienestar y Salud\\(Centro Médico / Autoseguro)},
         sop3/{Gestión Administrativa\\y Financiera (DIGA)},
         sop4/{Mantenimiento,\\Infraestructura y Logística}
     }
 
-    % 2. CAPAS DE FONDO Y CONTENEDORES (Unificadas con \id/.try)
-    \begin{scope}[on background layer]
-        \foreach \id/\col/\xA/\yA/\xB/\yB/\tit in {
-            bandaEst/blue/-3.7/6.7/14.0/8.9/PROCESOS ESTRATÉGICOS,
-            bandaMis/teal/-3.7/1.25/14.0/6.1/PROCESOS MISIONALES (OPERATIVOS),
-            bandaSub/red/-2.3/1.35/12.8/3.35/PROCESO EN ESTUDIO: MATRÍCULA REGULAR (Facultad de Ciencias),
-            bandaSop/purple/-3.7/-1.4/14.0/0.8/PROCESOS DE SOPORTE%
-        }{
-            \filldraw[rounded corners=5pt, fill=\col!3, draw=\col!45!black, thick, \id/.try] (\xA,\yA) rectangle (\xB,\yB);
-            \node[fill=\col!75!black, text=white, font=\bfseries\footnotesize\sffamily, rounded corners=2pt, 
-                  anchor=north west, inner xsep=6pt, inner ysep=3pt] at (\xA,\yB) {\tit};
-        }
-    \end{scope}
+    % 2. CAPAS DE FONDO Y CONTENEDORES (Calculados dinámicamente a partir de las filas)
+    \dibujarBanda[fondoInterno]{bandaSub}{red}{(filaSub)}{filaSub}
+        {PROCESO EN ESTUDIO: MATRÍCULA REGULAR (Facultad de Ciencias)}
+
+    \node[envolvente={(filaEst)(filaMis)(bandaSub)(filaSop)}] (areaCentral) {};
+
+    \foreach \id/\col/\contenido/\tit in {
+        bandaEst/blue/{(filaEst)}/PROCESOS ESTRATÉGICOS,
+        bandaMis/teal/{(filaMis)(bandaSub)}/PROCESOS MISIONALES (OPERATIVOS),
+        bandaSop/purple/{(filaSop)}/PROCESOS DE SOPORTE%
+    }{
+        \dibujarBanda{\id}{\col}{\contenido}{areaCentral}{\tit}
+    }
+
+    \draw[flecha={red}{1.2pt}, dashed] (mis2.south) -- (mis2.south |- bandaSub.north);
 
     % 3. FLANCOS LATERALES Y FLECHAS DE FLUJO
-    \foreach \id/\x/\ang/\xF/\xT/\tit/\sub in {
-        entrada/-5.1/90/-4.1/-3.7/NECESIDADES Y EXPECTATIVAS/{Requisitos de Estudiantes, Comunidad y Sector Productivo},
-        salida/15.4/-90/14.0/14.4/SATISFACCIÓN Y RESULTADOS/{Profesionales Graduados, Innovación y Aporte al País}%
-    }{
-        \node[cajaBase, rounded corners=4pt, draw=black!70, fill=gray!18, line width=1.1pt, minimum width=1.8cm, minimum height=10.6cm] 
-            (\id) at (\x, 3.75) {\rotatebox{\ang}{\parbox{9.5cm}{\centering\bfseries\small\tit\\[0.1cm]\footnotesize\normalfont\sub}}};
-        \draw[flecha={teal}{3pt}] (\xF, 4.8) -- (\xT, 4.8);
-    }
+    \node[envolvente={(bandaEst)(bandaMis)(bandaSop)}] (bloqueBandas) {};
+
+    \dibujarFlanco{left}{entrada}{90}
+        {NECESIDADES Y EXPECTATIVAS}
+        {Requisitos de Estudiantes, Comunidad y Sector Productivo}
+
+    \dibujarFlanco{right}{salida}{-90}
+        {SATISFACCIÓN Y RESULTADOS}
+        {Profesionales Graduados, Innovación y Aporte al País}
+
+    \draw[flechaFlujo] (entrada.east |- filaMis) -- (bloqueBandas.west |- filaMis);
+    \draw[flechaFlujo] (bloqueBandas.east |- filaMis) -- (salida.west |- filaMis);
 
 \end{tikzpicture}%
 }
